@@ -17,9 +17,12 @@ export default function AuthCallbackPage() {
         const code = searchParams.get('code')
         const errorParam = searchParams.get('error')
         const errorDescription = searchParams.get('error_description')
+        const type = searchParams.get('type')
         
-        console.log('Callback params:', { code, errorParam, errorDescription })
+        console.log('=== AUTH CALLBACK DEBUG ===')
+        console.log('Callback params:', { code, errorParam, errorDescription, type })
         console.log('Full URL:', window.location.href)
+        console.log('Search params:', Object.fromEntries(searchParams.entries()))
         
         // Check for error parameters first
         if (errorParam) {
