@@ -136,3 +136,18 @@ backup_*/
 # Temporary files
 *.tmp
 *.temp
+
+# Debug & Test Pages
+app/auth/debug/
+app/auth/test-*/
+app/auth/simple-test/
+app/auth/*test*.tsx
+app/auth/*debug*.tsx
+app/**/debug/
+app/**/test-*/
+
+# Vercel
+.vercel/
+
+# Turbopack (Next.js 13+)
+.turbopack/
