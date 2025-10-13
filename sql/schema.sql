@@ -19,6 +19,11 @@ CREATE TABLE IF NOT EXISTS users (
   token_used_today INTEGER DEFAULT 0,
   last_reset DATE DEFAULT CURRENT_DATE,
   is_active BOOLEAN DEFAULT true,
+  email_updates BOOLEAN DEFAULT true,
+  lesson_reminders BOOLEAN DEFAULT true,
+  progress_reports BOOLEAN DEFAULT false,
+  promotions BOOLEAN DEFAULT false,
+  avatar TEXT DEFAULT '',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

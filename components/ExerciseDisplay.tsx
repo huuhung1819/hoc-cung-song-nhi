@@ -26,7 +26,7 @@ export function ExerciseDisplay({ subject, subSubject, isUnlockMode, onGenerateE
   }
 
   const generateMockExercise = (subject: string, subSubject: string) => {
-    const exercises = {
+    const exercises: Record<string, Record<string, string>> = {
       math: {
         'Trắc nghiệm': 'Câu 1: Kết quả của phép tính 15 + 27 là:\nA) 42\nB) 41\nC) 43\nD) 40',
         'Có lời văn': 'Bài toán: Một cửa hàng có 120 quyển vở. Ngày đầu bán được 1/3 số vở. Ngày thứ hai bán được 1/4 số vở còn lại. Hỏi cửa hàng còn lại bao nhiêu quyển vở?',

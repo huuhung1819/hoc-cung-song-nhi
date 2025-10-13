@@ -233,10 +233,10 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
         {selectedSubject && (
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              {SUBJECTS[selectedSubject].icon} Chọn loại bài tập {SUBJECTS[selectedSubject].name}:
+              {(SUBJECTS as any)[selectedSubject].icon} Chọn loại bài tập {(SUBJECTS as any)[selectedSubject].name}:
             </h3>
             <div className="grid grid-cols-2 gap-2">
-              {SUBJECTS[selectedSubject].subSubjects.map((subSubject) => (
+              {(SUBJECTS as any)[selectedSubject].subSubjects.map((subSubject: string) => (
                 <button
                   key={subSubject}
                   onClick={() => handleSubSubjectClick(subSubject)}

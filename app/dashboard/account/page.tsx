@@ -1,37 +1,197 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { User, Mail, Phone, CreditCard, Bell, Shield } from 'lucide-react'
+import { User, Mail, Phone, CreditCard, Bell, Shield, Loader2, AlertCircle } from 'lucide-react'
+import { useAuth } from '@/lib/authContext'
+import { toast } from 'sonner'
+
+interface UserProfile {
+  id: string
+  name: string
+  email: string
+  phone: string
+  grade: string
+  plan: string
+  role: string
+  avatar: string
+  createdAt: string
+  updatedAt: string
+}
+
+interface UserStats {
+  completedLessons: number
+  studyTimeHours: number
+  averageScore: number
+  totalQuizzes: number
+  studySessions: number
+}
+
+interface NotificationSettings {
+  emailUpdates: boolean
+  lessonReminders: boolean
+  progressReports: boolean
+  promotions: boolean
+}
 
 export default function AccountPage() {
-  const [user, setUser] = useState({
-    name: 'Nguyễn Văn A',
-    email: 'nguyenvana@email.com',
-    phone: '0123456789',
-    avatar: '',
-    plan: 'Gói Cơ Bản',
-    tokenQuota: 500,
-    tokenUsed: 150,
-    joinedDate: '2024-01-01'
-  })
-
-  const [notifications, setNotifications] = useState({
+  const { user: authUser } = useAuth()
+  const [user, setUser] = useState<UserProfile | null>(null)
+  const [stats, setStats] = useState<UserStats | null>(null)
+  const [notifications, setNotifications] = useState<NotificationSettings>({
     emailUpdates: true,
     lessonReminders: true,
     progressReports: false,
     promotions: false
   })
-
   const [isEditing, setIsEditing] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSave = () => {
-    // Save user data logic here
-    setIsEditing(false)
+  const loadUserProfile = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      
+      const response = await fetch(`/api/user/profile?userId=${authUser?.id}`)
+      if (!response.ok) {
+        throw new Error('Không thể tải thông tin tài khoản')
+      }
+      
+      const data = await response.json()
+      setUser(data.user)
+      setStats(data.stats)
+      setNotifications(data.notifications)
+      
+    } catch (error) {
+      console.error('Error loading user profile:', error)
+      setError(error instanceof Error ? error.message : 'Lỗi không xác định')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [authUser?.id])
+
+  // Load user profile data
+  useEffect(() => {
+    if (authUser?.id) {
+      loadUserProfile()
+    }
+  }, [authUser?.id, loadUserProfile])
+
+  const handleSave = async () => {
+    if (!user || !authUser?.id) return
+    
+    try {
+      setIsSaving(true)
+      setError(null)
+      
+      const response = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: authUser.id,
+          name: user.name,
+          phone: user.phone,
+          grade: user.grade,
+          notifications: notifications
+        })
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Không thể cập nhật thông tin')
+      }
+      
+      const result = await response.json()
+      toast.success(result.message || 'Cập nhật thông tin thành công')
+      setIsEditing(false)
+      
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      setError(error instanceof Error ? error.message : 'Lỗi không xác định')
+      toast.error('Không thể cập nhật thông tin')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleChangePassword = async (currentPassword: string, newPassword: string): Promise<boolean> => {
+    if (!authUser?.id) return false
+    
+    try {
+      setIsSaving(true)
+      setError(null)
+      
+      const response = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: authUser.id,
+          currentPassword,
+          newPassword
+        })
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Không thể đổi mật khẩu')
+      }
+      
+      const result = await response.json()
+      toast.success(result.message || 'Đổi mật khẩu thành công')
+      return true
+      
+    } catch (error) {
+      console.error('Error changing password:', error)
+      setError(error instanceof Error ? error.message : 'Lỗi không xác định')
+      toast.error('Không thể đổi mật khẩu')
+      return false
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Đang tải thông tin tài khoản...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-4" />
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={loadUserProfile}>Thử lại</Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <AlertCircle className="w-8 h-8 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-600">Không tìm thấy thông tin tài khoản</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -84,6 +244,7 @@ export default function AccountPage() {
                     value={user.name}
                     onChange={(e) => setUser({...user, name: e.target.value})}
                     disabled={!isEditing}
+                    placeholder="Nhập họ và tên"
                   />
                 </div>
                 <div>
@@ -92,9 +253,11 @@ export default function AccountPage() {
                     id="email"
                     type="email"
                     value={user.email}
-                    onChange={(e) => setUser({...user, email: e.target.value})}
-                    disabled={!isEditing}
+                    disabled={true}
+                    className="bg-gray-50"
+                    placeholder="Email không thể thay đổi"
                   />
+                  <p className="text-xs text-gray-500 mt-1">Email không thể thay đổi</p>
                 </div>
                 <div>
                   <Label htmlFor="phone">Số điện thoại</Label>
@@ -103,15 +266,48 @@ export default function AccountPage() {
                     value={user.phone}
                     onChange={(e) => setUser({...user, phone: e.target.value})}
                     disabled={!isEditing}
+                    placeholder="Nhập số điện thoại"
                   />
+                </div>
+                <div>
+                  <Label htmlFor="grade">Lớp học</Label>
+                  <select
+                    id="grade"
+                    value={user.grade}
+                    onChange={(e) => setUser({...user, grade: e.target.value})}
+                    disabled={!isEditing}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                  >
+                    <option value="Lớp 1">Lớp 1</option>
+                    <option value="Lớp 2">Lớp 2</option>
+                    <option value="Lớp 3">Lớp 3</option>
+                    <option value="Lớp 4">Lớp 4</option>
+                    <option value="Lớp 5">Lớp 5</option>
+                    <option value="Lớp 6">Lớp 6</option>
+                    <option value="Lớp 7">Lớp 7</option>
+                    <option value="Lớp 8">Lớp 8</option>
+                    <option value="Lớp 9">Lớp 9</option>
+                    <option value="Lớp 10">Lớp 10</option>
+                    <option value="Lớp 11">Lớp 11</option>
+                    <option value="Lớp 12">Lớp 12</option>
+                  </select>
                 </div>
               </div>
 
               <div className="flex gap-2">
                 {isEditing ? (
                   <>
-                    <Button onClick={handleSave}>Lưu thay đổi</Button>
-                    <Button variant="outline" onClick={() => setIsEditing(false)}>
+                    <Button onClick={handleSave} disabled={isSaving}>
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Đang lưu...
+                        </>
+                      ) : (
+                        'Lưu thay đổi'
+                      )}
+                    </Button>
+                    <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving}>
                       Hủy
                     </Button>
                   </>
@@ -135,15 +331,22 @@ export default function AccountPage() {
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-semibold text-lg">{user.plan}</h3>
+                  <h3 className="font-semibold text-lg">
+                    {user.plan === 'basic' ? 'Gói Cơ Bản' : 
+                     user.plan === 'premium' ? 'Gói Premium' : 
+                     user.plan === 'pro' ? 'Gói Pro' : 'Gói Cơ Bản'}
+                  </h3>
                   <p className="text-gray-600">
-                    Token: {user.tokenUsed}/{user.tokenQuota} (reset hàng ngày)
+                    Vai trò: {user.role === 'parent' ? 'Phụ huynh' : 'Học sinh'}
                   </p>
                   <p className="text-sm text-gray-500">
-                    Tham gia từ: {new Date(user.joinedDate).toLocaleDateString('vi-VN')}
+                    Tham gia từ: {new Date(user.createdAt).toLocaleDateString('vi-VN')}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Cập nhật lần cuối: {new Date(user.updatedAt).toLocaleDateString('vi-VN')}
                   </p>
                 </div>
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => window.location.href = '/pricing'}>
                   Nâng cấp gói
                 </Button>
               </div>
@@ -225,10 +428,7 @@ export default function AccountPage() {
               <CardTitle>Thao tác nhanh</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full justify-start">
-                <Shield className="w-4 h-4 mr-2" />
-                Đổi mật khẩu
-              </Button>
+              <ChangePasswordButton onPasswordChange={handleChangePassword} disabled={isSaving} />
               <Button variant="outline" className="w-full justify-start">
                 <Mail className="w-4 h-4 mr-2" />
                 Liên hệ hỗ trợ
@@ -247,21 +447,152 @@ export default function AccountPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">18</div>
+                <div className="text-2xl font-bold text-blue-600">{stats?.completedLessons || 0}</div>
                 <div className="text-sm text-gray-600">Bài học hoàn thành</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">12.5h</div>
-                <div className="text-sm text-gray-600">Thời gian học</div>
+                <div className="text-2xl font-bold text-green-600">{stats?.studyTimeHours || 0}h</div>
+                <div className="text-sm text-gray-600">Thời gian học (30 ngày)</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-yellow-600">8.5</div>
+                <div className="text-2xl font-bold text-yellow-600">{stats?.averageScore || 0}</div>
                 <div className="text-sm text-gray-600">Điểm trung bình</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">{stats?.totalQuizzes || 0}</div>
+                <div className="text-sm text-gray-600">Bài kiểm tra</div>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
     </div>
+  )
+}
+
+// Change Password Component
+function ChangePasswordButton({ onPasswordChange, disabled }: { 
+  onPasswordChange: (currentPassword: string, newPassword: string) => Promise<boolean>
+  disabled: boolean 
+}) {
+  const [showModal, setShowModal] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (newPassword !== confirmPassword) {
+      setError('Mật khẩu mới và xác nhận mật khẩu không khớp')
+      return
+    }
+    
+    if (newPassword.length < 6) {
+      setError('Mật khẩu mới phải có ít nhất 6 ký tự')
+      return
+    }
+
+    setIsSubmitting(true)
+    setError(null)
+    
+    const success = await onPasswordChange(currentPassword, newPassword)
+    
+    if (success) {
+      setShowModal(false)
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+    }
+    
+    setIsSubmitting(false)
+  }
+
+  return (
+    <>
+      <Button 
+        variant="outline" 
+        className="w-full justify-start"
+        onClick={() => setShowModal(true)}
+        disabled={disabled}
+      >
+        <Shield className="w-4 h-4 mr-2" />
+        Đổi mật khẩu
+      </Button>
+
+      {/* Change Password Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4">Đổi mật khẩu</h3>
+            
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="currentPassword">Mật khẩu hiện tại</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="newPassword">Mật khẩu mới</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="confirmPassword">Xác nhận mật khẩu mới</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              
+              {error && (
+                <div className="text-red-600 text-sm">{error}</div>
+              )}
+              
+              <div className="flex gap-2 pt-4">
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Đang đổi...
+                    </>
+                  ) : (
+                    'Đổi mật khẩu'
+                  )}
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowModal(false)}
+                  disabled={isSubmitting}
+                >
+                  Hủy
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
   )
 }

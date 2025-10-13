@@ -172,7 +172,9 @@ export default function DashboardPage() {
               sendExerciseToChatRef.current = sendFn
             }}
             onRegisterMessagesRef={(ref) => {
-              chatMessagesRef.current = ref.current
+              if (ref) {
+                (chatMessagesRef as any).current = ref
+              }
             }}
           />
         </CardContent>

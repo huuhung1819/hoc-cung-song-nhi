@@ -124,7 +124,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Preview routes - public access (no auth required)
-  const publicPreviewRoutes = ['/preview-dashboard']
+  const publicPreviewRoutes = ['/preview-dashboard', '/test-ui']
   const isPublicPreview = publicPreviewRoutes.some(route =>
     request.nextUrl.pathname.startsWith(route)
   )
