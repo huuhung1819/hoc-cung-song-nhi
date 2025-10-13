@@ -1,0 +1,63 @@
+# Dependencies
+node_modules
+npm-debug.log
+.pnpm-debug.log*
+
+# Testing
+coverage
+.nyc_output
+
+# Next.js
+.next/
+out/
+dist
+build
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+*.log
+
+# Local env files
+.env*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Backups
+backup_*/
+**/backup_*/
+
+# Documentation
+*.md
+docs/
+
+# SQL files (not needed in production)
+sql/
+
+# Config templates
+cloudrun-secrets-template.txt
+create-secrets-commands.sh
+secrets-simple.txt
+env.example
+
+# Git
+.git
+.gitignore
+.gcloudignore
+

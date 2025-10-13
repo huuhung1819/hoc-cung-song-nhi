@@ -6,8 +6,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabaseClient'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
@@ -21,7 +24,6 @@ export default function ResetPasswordPage() {
   const [sessionLoading, setSessionLoading] = useState(true)
   const supabase = createClient()
   const router = useRouter()
-  const searchParams = useSearchParams()
 
   // Check if user has valid session for password reset
   useEffect(() => {
@@ -29,7 +31,10 @@ export default function ResetPasswordPage() {
       try {
         console.log('=== RESET PASSWORD DEBUG ===')
         console.log('Checking session...')
-        console.log('Search params:', Object.fromEntries(searchParams.entries()))
+        
+        // Use URLSearchParams from window.location
+        const params = new URLSearchParams(window.location.search)
+        console.log('Search params:', Object.fromEntries(params.entries()))
         
         const { data, error } = await supabase.auth.getSession()
         
@@ -47,7 +52,7 @@ export default function ResetPasswordPage() {
           setIsValidSession(true)
         } else {
           // Check if there's a code parameter (from email link)
-          const code = searchParams.get('code')
+          const code = params.get('code')
           console.log('Code parameter:', code ? 'EXISTS' : 'NONE')
           
           if (code) {
@@ -79,7 +84,7 @@ export default function ResetPasswordPage() {
     }
 
     checkSession()
-  }, [supabase.auth, searchParams])
+  }, [supabase.auth])
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -299,4 +304,3 @@ export default function ResetPasswordPage() {
     </div>
   )
 }
-

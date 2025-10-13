@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 
     // Process payment activities
     if (paymentActivities) {
-      paymentActivities.forEach(payment => {
+      paymentActivities.forEach((payment: any) => {
         let message = ''
         let status: 'success' | 'warning' | 'error' = 'success'
         let timestamp = payment.created_at
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
 
     // Process user activities
     if (userActivities) {
-      userActivities.forEach(user => {
+      userActivities.forEach((user: any) => {
         activities.push({
           id: `user-${user.id}`,
           type: 'user',

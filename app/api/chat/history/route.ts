@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get recent conversations for the user
-    let conversations = []
+    let conversations: any[] = []
     try {
       conversations = await conversationManager.getUserConversations(userId, limit)
     } catch (error) {

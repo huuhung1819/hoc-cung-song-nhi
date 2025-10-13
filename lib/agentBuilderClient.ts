@@ -5,7 +5,7 @@ export const agentBuilderClient = {
   /**
    * Create a new run (conversation) with an agent using Workflow ID
    */
-  async createRun(workflowId: string, messages: { role: 'user' | 'assistant' | 'system', content: string }[]) {
+  async createRun(workflowId: string, messages: { role: 'user' | 'assistant' | 'system', content: any }[]) {
     try {
       // Check if we have OpenAI API key
       if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your_openai_api_key_here' || process.env.OPENAI_API_KEY.length < 10) {
@@ -101,9 +101,9 @@ Bước 4: [Kiểm tra kết quả]
       }
 
       // Check if we have image data in the messages
-      const hasImage = messages.some(m => 
+      const hasImage = messages.some((m: any) => 
         m.content && 
-        (typeof m.content === 'object' && Array.isArray(m.content) && m.content.some(c => c.type === 'image_url'))
+        (typeof m.content === 'object' && Array.isArray(m.content) && m.content.some((c: any) => c.type === 'image_url'))
       )
       
       // Real OpenAI API call

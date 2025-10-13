@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
             text: processedMessage
           },
           imageForAI
-        ]
+        ] as any
       })
     } else {
       messages.push({
@@ -155,10 +155,11 @@ export async function POST(request: NextRequest) {
     let response
     if (isMeaningfulMessage || imageData) {
       try {
-        response = await agentBuilderClient.createRun(workflowId, messages)
-      } catch (error) {
-        console.error('Agent Builder error:', error)
-        throw new Error(`Agent Builder API error: ${error.message}`)
+        response = await agentBuilderClient.createRun(workflowId, messages as any)
+      } catch (err: unknown) {
+        console.error('Agent Builder error:', err)
+        const msg = err instanceof Error ? err.message : String(err)
+        throw new Error(`Agent Builder API error: ${msg}`)
       }
 
       // Calculate character count for meaningful messages
@@ -205,8 +206,8 @@ export async function POST(request: NextRequest) {
       hasImage: !!imageData
     })
 
-  } catch (error) {
-    console.error('Chat API error:', error)
+  } catch (err: unknown) {
+    console.error('Chat API error:', err)
     return NextResponse.json(
       { error: 'Có lỗi xảy ra khi xử lý tin nhắn. Vui lòng thử lại.' },
       { status: 500 }

@@ -150,4 +150,6 @@ app/**/test-*/
 .vercel/
 
 # Turbopack (Next.js 13+)
-.turbopack/
+.turbopack/create-secrets-commands.sh
+secrets-simple.txt
+cloudrun-secrets-template.txt

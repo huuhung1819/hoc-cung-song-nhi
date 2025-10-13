@@ -83,7 +83,7 @@ export default function AdminLayout({
             console.log('❌ Failed to get user role, assuming admin for now')
             setUserRole('admin') // Assume admin if API fails
           }
-        } catch (fetchError) {
+        } catch (fetchError: any) {
           if (fetchError.name === 'AbortError') {
             console.log('⏰ API timeout, assuming admin for now')
             setUserRole('admin') // Assume admin if API times out

@@ -2,27 +2,31 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabaseClient'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 
 export default function AuthCallbackPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const router = useRouter()
-  const searchParams = useSearchParams()
   const supabase = createClient()
 
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        const code = searchParams.get('code')
-        const errorParam = searchParams.get('error')
-        const errorDescription = searchParams.get('error_description')
-        const type = searchParams.get('type')
+        // Use URLSearchParams from window.location instead of useSearchParams
+        const params = new URLSearchParams(window.location.search)
+        const code = params.get('code')
+        const errorParam = params.get('error')
+        const errorDescription = params.get('error_description')
+        const type = params.get('type')
         
         console.log('=== AUTH CALLBACK DEBUG ===')
         console.log('Callback params:', { code, errorParam, errorDescription, type })
         console.log('Full URL:', window.location.href)
-        console.log('Search params:', Object.fromEntries(searchParams.entries()))
+        console.log('Search params:', Object.fromEntries(params.entries()))
         
         // Check for error parameters first
         if (errorParam) {
@@ -92,7 +96,7 @@ export default function AuthCallbackPage() {
     }
 
     handleAuthCallback()
-  }, [router, searchParams, supabase.auth])
+  }, [router, supabase.auth])
 
   if (loading) {
     return (

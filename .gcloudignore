@@ -1,0 +1,62 @@
+# ==============================================
+# .gcloudignore - Files to exclude from Cloud Run deployment
+# ==============================================
+
+# Backup folders (exclude from all operations)
+backup_*/
+**/backup_*/
+
+# Documentation files
+*.md
+docs/
+
+# Template/Config files
+cloudrun-secrets-template.txt
+create-secrets-commands.sh
+secrets-simple.txt
+env.example
+
+# Development files
+scripts/
+sql/
+
+# Dependencies (Cloud Run will install fresh)
+node_modules/
+
+# Git files
+.git/
+.gitignore
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Test files
+**/test-*/
+**/debug/
+**/*test*.tsx
+**/*debug*.tsx
+
+# Debug API routes
+app/api/debug/
+app/api/debug-db/
+
+# Test pages
+app/auth/test-direct/
+app/auth/test-reset/
+
+# Test scripts
+scripts/test-*.mjs
+scripts/test-*.ts
+scripts/*test*

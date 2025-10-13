@@ -174,7 +174,7 @@ export default function DashboardPage() {
     }
   }
 
-  const [recentQuestions, setRecentQuestions] = useState([])
+  const [recentQuestions, setRecentQuestions] = useState<any[]>([])
   const [isLoadingHistory, setIsLoadingHistory] = useState(false)
 
   const stats = [

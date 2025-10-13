@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
 import QRPayment from '@/components/QRPayment';
 import { getPackageById } from '@/lib/pricing';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 
 interface PaymentData {
   userPhone: string;
@@ -15,28 +18,31 @@ interface PaymentData {
 
 export default function PaymentPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const packageId = searchParams.get('package');
-
+  const [packageId, setPackageId] = useState<string | null>(null);
   const [packageInfo, setPackageInfo] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!packageId) {
+    // Use URLSearchParams from window.location
+    const params = new URLSearchParams(window.location.search);
+    const pkgId = params.get('package');
+    setPackageId(pkgId);
+
+    if (!pkgId) {
       router.push('/pricing');
       return;
     }
 
-    const pkg = getPackageById(packageId);
+    const pkg = getPackageById(pkgId);
     if (!pkg) {
       setError('Gói không hợp lệ');
       return;
     }
 
     setPackageInfo(pkg);
-  }, [packageId, router]);
+  }, [router]);
 
   const handleSubmitPayment = async (data: PaymentData) => {
     if (!packageInfo) return;
