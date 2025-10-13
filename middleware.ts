@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { checkRateLimit, logAdminActivityFromRequest, checkAdminSession } from '@/lib/adminSecurity'
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -8,7 +9,7 @@ export async function middleware(request: NextRequest) {
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         get(name: string) {
@@ -56,16 +57,92 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protected routes
+  // Get user role for middleware logic
+  let currentUserRole = 'parent' // default role
+  if (user) {
+    // Get user profile to check role
+    try {
+      const { data: userProfile, error: profileError } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      console.log('🔍 Middleware Debug:', {
+        userId: user.id,
+        userProfile: userProfile,
+        profileError: profileError,
+        userRole: userProfile?.role
+      })
+
+      if (!profileError && userProfile) {
+        currentUserRole = userProfile.role
+      }
+    } catch (error) {
+      console.error('Error getting user role:', error)
+    }
+
+    // Add user ID to headers for API routes
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set('x-user-id', user.id)
+    requestHeaders.set('x-user-role', currentUserRole)
+    const newResponse = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    })
+    // Copy cookies from supabaseResponse
+    supabaseResponse.cookies.getAll().forEach(cookie => {
+      newResponse.cookies.set(cookie.name, cookie.value, {
+        path: cookie.path,
+        domain: cookie.domain,
+        expires: cookie.expires,
+        maxAge: cookie.maxAge,
+        httpOnly: cookie.httpOnly,
+        secure: cookie.secure,
+        sameSite: cookie.sameSite,
+      })
+    })
+    supabaseResponse = newResponse
+  }
+
+  // Protected routes with role-based access
   const protectedRoutes = ['/dashboard', '/teacher', '/admin']
+  const adminOnlyRoutes = ['/admin']
+  const teacherOnlyRoutes = ['/teacher']
   const authRoutes = ['/auth/login', '/auth/register']
+  const allowedAuthRoutes = ['/auth/callback', '/auth/reset-password', '/auth/forgot-password']
   
   const isProtectedRoute = protectedRoutes.some(route => 
+    request.nextUrl.pathname.startsWith(route)
+  )
+  const isAdminRoute = adminOnlyRoutes.some(route => 
+    request.nextUrl.pathname.startsWith(route)
+  )
+  const isTeacherRoute = teacherOnlyRoutes.some(route => 
     request.nextUrl.pathname.startsWith(route)
   )
   const isAuthRoute = authRoutes.some(route => 
     request.nextUrl.pathname.startsWith(route)
   )
+  const isAllowedAuthRoute = allowedAuthRoutes.some(route =>
+    request.nextUrl.pathname.startsWith(route)
+  )
+
+  // Check if this is a password recovery flow
+  const isPasswordRecovery = request.nextUrl.searchParams.get('type') === 'recovery' || 
+                              request.nextUrl.searchParams.get('next') === 'reset-password' ||
+                              request.nextUrl.searchParams.get('recovery') === 'true'
+
+  // Allow callback and reset-password pages without redirect
+  if (isAllowedAuthRoute) {
+    return supabaseResponse
+  }
+
+  // Allow reset-password page even if user is logged in (for password recovery)
+  if (user && request.nextUrl.pathname.startsWith('/auth/reset-password')) {
+    return supabaseResponse
+  }
 
   // If user is not signed in and trying to access protected route
   if (!user && isProtectedRoute) {
@@ -74,12 +151,117 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // If user is signed in and trying to access auth routes (except register)
-  if (user && isAuthRoute && !request.nextUrl.pathname.startsWith('/auth/register')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
+  // Role-based access control for authenticated users
+  if (user && isProtectedRoute) {
+    // Use the role resolved above from the database
+    const userRole = currentUserRole
+
+    // Enhanced security for admin routes
+    if (isAdminRoute && userRole === 'admin') {
+      try {
+        // Check rate limit
+        const rateLimit = await checkRateLimit(user.id, request.nextUrl.pathname)
+        
+        if (!rateLimit.allowed) {
+          // Rate limit exceeded
+          await logAdminActivityFromRequest(
+            user.id,
+            'admin_rate_limit_exceeded',
+            request,
+            { endpoint: request.nextUrl.pathname }
+          )
+          
+          return new NextResponse(
+            JSON.stringify({
+              error: 'Too many requests',
+              message: 'Rate limit exceeded. Please try again later.',
+              resetAt: rateLimit.resetAt.toISOString()
+            }),
+            {
+              status: 429,
+              headers: {
+                'Content-Type': 'application/json',
+                'X-RateLimit-Limit': '10',
+                'X-RateLimit-Remaining': '0',
+                'X-RateLimit-Reset': rateLimit.resetAt.toISOString()
+              }
+            }
+          )
+        }
+
+        // Check session timeout
+        const session = await checkAdminSession(user.id)
+        
+        if (!session.valid) {
+          // Session expired
+          await logAdminActivityFromRequest(
+            user.id,
+            'admin_session_expired',
+            request,
+            { lastActivity: session.lastActivity.toISOString() }
+          )
+          
+          const url = request.nextUrl.clone()
+          url.pathname = '/auth/login'
+          url.searchParams.set('reason', 'session_expired')
+          return NextResponse.redirect(url)
+        }
+
+        // Log admin access
+        await logAdminActivityFromRequest(
+          user.id,
+          'admin_route_access',
+          request,
+          { 
+            endpoint: request.nextUrl.pathname,
+            method: request.method
+          }
+        )
+
+        // Add rate limit headers to response
+        supabaseResponse.headers.set('X-RateLimit-Limit', '10')
+        supabaseResponse.headers.set('X-RateLimit-Remaining', rateLimit.remaining.toString())
+        supabaseResponse.headers.set('X-RateLimit-Reset', rateLimit.resetAt.toISOString())
+        
+      } catch (error) {
+        console.error('Admin security check error:', error)
+        // Continue on error (fail open for availability)
+      }
+    }
+
+    // Check admin route access
+    if (isAdminRoute && userRole !== 'admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard' // Redirect to dashboard if not admin
+      return NextResponse.redirect(url)
+    }
+
+    // Check teacher route access
+    if (isTeacherRoute && userRole !== 'teacher' && userRole !== 'admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard' // Redirect to dashboard if not teacher/admin
+      return NextResponse.redirect(url)
+    }
   }
+
+  // If user is signed in and trying to access login/register
+  // BUT allow if this is a password recovery flow
+  // ALSO allow reset-password page during recovery flow
+  // Remove middleware redirect for auth routes - let login page handle it
+  // if (user && isAuthRoute && !isPasswordRecovery && !request.nextUrl.pathname.startsWith('/auth/reset-password')) {
+  //   const url = request.nextUrl.clone()
+  //   // Redirect admin users to admin dashboard, others to user dashboard
+  //   
+  //   console.log('🔍 Middleware Redirect Debug:', {
+  //     userId: user.id,
+  //     userRole: currentUserRole,
+  //     redirectTo: currentUserRole === 'admin' ? '/admin' : '/dashboard',
+  //     currentPath: request.nextUrl.pathname
+  //   })
+  //   
+  //   url.pathname = currentUserRole === 'admin' ? '/admin' : '/dashboard'
+  //   return NextResponse.redirect(url)
+  // }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
   // creating a new response object with NextResponse.next() make sure to:

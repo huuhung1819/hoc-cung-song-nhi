@@ -27,6 +27,10 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const checkSession = async () => {
       try {
+        console.log('=== RESET PASSWORD DEBUG ===')
+        console.log('Checking session...')
+        console.log('Search params:', Object.fromEntries(searchParams.entries()))
+        
         const { data, error } = await supabase.auth.getSession()
         
         if (error) {
@@ -36,28 +40,39 @@ export default function ResetPasswordPage() {
           return
         }
 
+        console.log('Current session:', data.session ? 'EXISTS' : 'NONE')
+        
         if (data.session) {
+          console.log('✅ Valid session found')
           setIsValidSession(true)
         } else {
           // Check if there's a code parameter (from email link)
           const code = searchParams.get('code')
+          console.log('Code parameter:', code ? 'EXISTS' : 'NONE')
+          
           if (code) {
+            console.log('Attempting code exchange...')
             // Try to exchange the code for a session
             const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
             
             if (exchangeError) {
-              console.error('Code exchange error:', exchangeError)
-              setError('Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.')
+              console.error('❌ Code exchange error:', exchangeError)
+              setError(`Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Chi tiết: ${exchangeError.message}`)
             } else if (exchangeData.session) {
+              console.log('✅ Code exchange successful')
               setIsValidSession(true)
+            } else {
+              console.error('❌ No session created from code exchange')
+              setError('Không thể tạo phiên đăng nhập từ code.')
             }
           } else {
+            console.log('❌ No code parameter found')
             setError('Bạn cần truy cập từ link trong email để đặt lại mật khẩu.')
           }
         }
       } catch (err: any) {
-        console.error('Unexpected error:', err)
-        setError('Có lỗi xảy ra khi kiểm tra phiên đăng nhập.')
+        console.error('❌ Unexpected error:', err)
+        setError(`Có lỗi xảy ra khi kiểm tra phiên đăng nhập: ${err.message}`)
       } finally {
         setSessionLoading(false)
       }

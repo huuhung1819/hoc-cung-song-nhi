@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { TokenProgress } from '@/components/TokenProgress'
 import { cn } from '@/lib/utils'
 import { authClient } from '@/lib/authClient'
+import { useAuth } from '@/lib/authContext'
 import { 
   Home, 
   BookOpen, 
@@ -48,8 +50,66 @@ const sidebarItems = [
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [user, setUser] = useState({
+    name: 'Đang tải...',
+    usagePercentage: 0,
+    isNearLimit: false,
+    isAtLimit: false,
+    plan: 'Gói Cơ Bản'
+  })
+  const [isLoadingUser, setIsLoadingUser] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+  const { user: authUser } = useAuth()
+
+  // Load user info
+  const loadUserInfo = useCallback(async () => {
+    if (!authUser?.id) return
+    
+    setIsLoadingUser(true)
+    try {
+      const response = await fetch(`/api/user/info?userId=${authUser.id}`)
+      if (response.ok) {
+        const data = await response.json()
+        setUser(data.user)
+      } else {
+        // Fallback to auth user data if API fails
+        if (authUser) {
+          setUser(prev => ({
+            ...prev,
+            name: authUser.user_metadata?.name || authUser.email || 'Người dùng',
+            email: authUser.email || ''
+          }))
+        }
+      }
+    } catch (error) {
+      console.error('Error loading user info:', error)
+      // Fallback to auth user data if API fails
+      if (authUser) {
+        setUser(prev => ({
+          ...prev,
+          name: authUser.user_metadata?.name || authUser.email || 'Người dùng',
+          email: authUser.email || ''
+        }))
+      }
+    } finally {
+      setIsLoadingUser(false)
+    }
+  }, [authUser])
+
+  useEffect(() => {
+    loadUserInfo()
+
+    // Listen for user info updates
+    const handleUserInfoUpdate = () => {
+      loadUserInfo()
+    }
+    window.addEventListener('userInfoUpdated', handleUserInfoUpdate)
+    
+    return () => {
+      window.removeEventListener('userInfoUpdated', handleUserInfoUpdate)
+    }
+  }, [loadUserInfo])
 
   const handleLogout = async () => {
     if (isLoggingOut) return
@@ -125,14 +185,38 @@ export function Sidebar() {
         </ul>
       </nav>
 
+      {/* Questions Progress */}
+      {!isCollapsed && (
+        <div className="px-4 pb-4">
+          <TokenProgress 
+            usagePercentage={user.usagePercentage}
+            isNearLimit={user.isNearLimit}
+            isAtLimit={user.isAtLimit}
+            label="Số câu hỏi hôm nay"
+            isLoading={isLoadingUser}
+          />
+        </div>
+      )}
+
       {/* Footer */}
       <div className="p-4 border-t border-gray-200">
-        <div className="space-y-2">
+        <div className="space-y-3">
           {!isCollapsed && (
-            <div className="text-xs text-gray-500 mb-2">
-              Nguyễn Văn A
-              <br />
-              Gói Cơ Bản
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+              <div className="text-xs text-gray-600 mb-2">
+                {user.name}
+                <br />
+                <span className="font-medium text-gray-800">{user.plan}</span>
+              </div>
+              {(user.plan === 'Gói Cơ Bản' || user.plan === 'Gói Miễn Phí') && (
+                <Button
+                  size="sm"
+                  className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white text-xs py-1 shadow-md hover:shadow-lg transition-all duration-200"
+                  onClick={() => window.open('/pricing', '_blank')}
+                >
+                  Nâng cấp gói
+                </Button>
+              )}
             </div>
           )}
           <Button

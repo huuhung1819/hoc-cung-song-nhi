@@ -34,8 +34,14 @@ export async function GET(request: NextRequest) {
     const planNames = {
       'basic': 'Gói Cơ Bản',
       'premium': 'Gói Cao Cấp',
-      'pro': 'Gói Chuyên Nghiệp'
+      'pro': 'Gói Chuyên Nghiệp',
+      'enterprise': 'Gói Doanh Nghiệp'
     }
+
+    // Use database plan for admin users, tokenInfo plan for others
+    const displayPlan = userData?.role === 'admin' && userData?.plan === 'enterprise' 
+      ? 'Gói Doanh Nghiệp'
+      : planNames[tokenInfo.plan as keyof typeof planNames] || 'Gói Cơ Bản'
 
     return NextResponse.json({
       success: true,
@@ -43,7 +49,7 @@ export async function GET(request: NextRequest) {
         id: userId,
         name: userData?.name || 'User',
         email: userData?.email || '',
-        plan: planNames[tokenInfo.plan as keyof typeof planNames] || 'Gói Cơ Bản',
+        plan: displayPlan,
         role: userData?.role || 'parent',
         usagePercentage: usagePercentage,
         isNearLimit: isNearLimit,
