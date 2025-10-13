@@ -1,21 +1,81 @@
+'use client'
+
 import { Sidebar } from '@/components/Sidebar'
 import { Navbar } from '@/components/Navbar'
+import Link from 'next/link'
+import { useAuth } from '@/lib/authContext'
+import { useState, useEffect } from 'react'
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const { user: authUser } = useAuth()
+  const [userRole, setUserRole] = useState<string>('parent')
+  const [userPlan, setUserPlan] = useState<string>('free')
+
+  useEffect(() => {
+    if (authUser) {
+      // Load user role and plan
+      fetch(`/api/user/info?userId=${authUser.id}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.user.role) {
+            setUserRole(data.user.role)
+            setUserPlan(data.user.plan || 'free')
+          }
+        })
+        .catch(error => console.error('Error loading user role:', error))
+    }
+  }, [authUser])
+
+  // Listen for user info updates
+  useEffect(() => {
+    const handleUserInfoUpdate = () => {
+      if (authUser) {
+        fetch(`/api/user/info?userId=${authUser.id}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.success && data.user) {
+              setUserRole(data.user.role || 'parent')
+              setUserPlan(data.user.plan || 'free')
+            }
+          })
+          .catch(error => console.error('Error updating user info:', error))
+      }
+    }
+
+    window.addEventListener('userInfoUpdated', handleUserInfoUpdate)
+    return () => window.removeEventListener('userInfoUpdated', handleUserInfoUpdate)
+  }, [authUser])
+
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <Sidebar />
+      {/* Sidebar - Hidden on mobile, visible on md+ */}
+      <div className="hidden md:block">
+        <Sidebar />
+      </div>
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar />
+        
+        {/* Upgrade Banner for Free Users (only for parents with free plan) */}
+        {userRole === 'parent' && userPlan === 'free' && (
+          <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 text-center text-sm">
+            <p>
+              🎉 Bạn đang dùng gói miễn phí. 
+              <Link href="/pricing" className="font-bold underline hover:no-underline ml-1">
+                Nâng cấp ngay
+              </Link>
+              {' '}để trải nghiệm đầy đủ tính năng!
+            </p>
+          </div>
+        )}
+        
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
-          <div className="container mx-auto px-6 py-8">
+          <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:py-8">
             {children}
           </div>
         </main>
