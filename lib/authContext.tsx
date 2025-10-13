@@ -37,10 +37,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false)
 
         if (event === 'SIGNED_OUT') {
-          router.push('/auth/login')
-        } else if (event === 'SIGNED_IN' && session?.user) {
-          router.push('/dashboard')
-        }
+          // Force a hard redirect to login to clear all state
+          if (typeof window !== 'undefined') {
+            window.location.href = '/auth/login';
+          }
+        } 
+        // REMOVED: The problematic SIGNED_IN redirect is gone.
+        // Login page now handles the initial redirect.
+        // Middleware handles protection. This context should not interfere.
       }
     )
 

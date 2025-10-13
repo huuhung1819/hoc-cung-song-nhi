@@ -49,54 +49,20 @@ export default function AdminLayout({
 
         setUser(user)
 
-        // Load user role from API with timeout
-        try {
-          const controller = new AbortController()
-          const fetchTimeoutId = setTimeout(() => controller.abort(), 5000)
-          
-          const response = await fetch(`/api/user/info?userId=${user.id}`, {
-            signal: controller.signal
-          })
-          const data = await response.json()
-          
-          clearTimeout(fetchTimeoutId)
-          
-          console.log('🔍 Admin Layout Debug:', {
-            userId: user.id,
-            apiResponse: data,
-            userRole: data?.user?.role
-          })
-          
-          if (data.success && data.user.role) {
-            const cleanRole = data.user.role.trim().toLowerCase()
-            setUserRole(cleanRole)
-            
-            if (cleanRole !== 'admin') {
-              console.log('❌ User is not admin, redirecting to dashboard')
-              clearTimeout(timeoutId)
-              router.push('/dashboard')
-              return
-            }
-            
-            console.log('✅ Admin access confirmed')
-          } else {
-            console.log('❌ Failed to get user role, assuming admin for now')
-            setUserRole('admin') // Assume admin if API fails
-          }
-        } catch (fetchError: any) {
-          if (fetchError.name === 'AbortError') {
-            console.log('⏰ API timeout, assuming admin for now')
-            setUserRole('admin') // Assume admin if API times out
-          } else {
-            console.error('❌ API fetch error:', fetchError)
-            setUserRole('admin') // Assume admin if API fails
-          }
-        }
-        
+        // Read user role from cookie (set by middleware)
+        const cookieRow = document.cookie
+          .split('; ')
+          .find((row) => row.startsWith('user-role='))
+        const roleFromCookie = cookieRow ? cookieRow.split('=')[1] : undefined
+
+        const cleanRole = (roleFromCookie || '').trim().toLowerCase()
+        setUserRole(cleanRole || 'admin')
+        console.log('🔍 Admin Layout Role (cookie):', cleanRole)
+
         clearTimeout(timeoutId)
       } catch (error) {
         console.error('Error checking auth:', error)
-        setUserRole('admin') // Assume admin if auth check fails
+        setUserRole('admin')
       } finally {
         setLoading(false)
       }
@@ -125,7 +91,7 @@ export default function AdminLayout({
   if (!user || userRole !== 'admin') {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-lg">Không có quyền truy cập...</div>
+        <div className="text-lg text-red-500">Bạn không có quyền truy cập trang này.</div>
       </div>
     )
   }

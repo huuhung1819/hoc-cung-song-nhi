@@ -49,20 +49,16 @@ export default function AdminDashboardPage() {
       return
     }
 
-    // Check user role
-    fetch(`/api/user/info?userId=${authUser.id}`)
-      .then(response => response.json())
-      .then(data => {
-        if (!data.success || data.user.role !== 'admin') {
-          router.push('/dashboard')
-          return
-        }
-        loadAdminData()
-      })
-      .catch(error => {
-        console.error('Error checking user role:', error)
-        router.push('/dashboard')
-      })
+    // Gate by cookie role set by middleware
+    const cookieRow = document.cookie.split('; ').find(r => r.startsWith('user-role='))
+    const role = cookieRow ? cookieRow.split('=')[1] : ''
+    if (role.trim().toLowerCase() !== 'admin') {
+      // Show no-permission message; middleware should already block direct access
+      setLoading(false)
+      return
+    }
+
+    loadAdminData()
   }, [authUser, router])
 
   const loadAdminData = async () => {

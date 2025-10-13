@@ -60,7 +60,7 @@ export async function middleware(request: NextRequest) {
   // Get user role for middleware logic
   let currentUserRole = 'parent' // default role
   if (user) {
-    // Get user profile to check role
+    // Prefer role from DB
     try {
       const { data: userProfile, error: profileError } = await supabase
         .from('users')
@@ -69,17 +69,24 @@ export async function middleware(request: NextRequest) {
         .single()
 
       console.log('🔍 Middleware Debug:', {
+        path: request.nextUrl.pathname,
         userId: user.id,
         userProfile: userProfile,
         profileError: profileError,
         userRole: userProfile?.role
       })
 
-      if (!profileError && userProfile) {
+      if (!profileError && userProfile?.role) {
         currentUserRole = userProfile.role
+      } else {
+        // Fallback to cookie role if DB query fails
+        const cookieRole = request.cookies.get('user-role')?.value
+        if (cookieRole) currentUserRole = cookieRole
       }
     } catch (error) {
       console.error('Error getting user role:', error)
+      const cookieRole = request.cookies.get('user-role')?.value
+      if (cookieRole) currentUserRole = cookieRole
     }
 
     // Add user ID to headers for API routes
@@ -103,6 +110,16 @@ export async function middleware(request: NextRequest) {
         sameSite: cookie.sameSite,
       })
     })
+
+    // Set user-role cookie for client-side layouts (not httpOnly so client can read)
+    newResponse.cookies.set('user-role', currentUserRole, {
+      path: '/',
+      httpOnly: false,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24, // 1 day
+    })
+
     supabaseResponse = newResponse
   }
 

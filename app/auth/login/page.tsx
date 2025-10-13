@@ -109,19 +109,28 @@ function LoginForm() {
         // Get user role from API to determine redirect destination
         try {
           const userId = data?.user?.id
+          console.log('🔐 Login Debug - User ID:', userId)
+          
           if (!userId) {
             throw new Error('Missing user id after login')
           }
-          const userInfoResponse = await fetch(`/api/user/info?userId=${userId}`)
-          const userInfo = await userInfoResponse.json()
           
-          if (userInfo.success && userInfo.user.role === 'admin') {
-            router.push('/admin')
+          const userInfoResponse = await fetch(`/api/user/info?userId=${userId}`)
+          console.log('🔐 Login Debug - API Response Status:', userInfoResponse.status)
+          
+          const userInfo = await userInfoResponse.json()
+          console.log('🔐 Login Debug - User Info:', userInfo)
+          console.log('🔐 Login Debug - User Role:', userInfo?.user?.role)
+          
+          if (userInfo.success && userInfo.user?.role === 'admin') {
+            console.log('✅ Admin detected! Redirecting to /admin')
+            window.location.href = '/admin' // Use hard redirect instead of router.push
           } else {
+            console.log('📌 Parent/Teacher detected! Redirecting to /dashboard')
             router.push('/dashboard')
           }
         } catch (error) {
-          console.error('Error getting user role:', error)
+          console.error('❌ Error getting user role:', error)
           router.push('/dashboard') // fallback
         }
       }
