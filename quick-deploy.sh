@@ -54,3 +54,4 @@ echo ""
 echo -e "${GREEN}🎉 Deploy complete!${NC}"
 echo -e "Visit: ${SERVICE_URL}"
 
+

@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
   phone VARCHAR(20),
   role VARCHAR(50) NOT NULL CHECK (role IN ('admin', 'teacher', 'parent')),
   plan VARCHAR(50) DEFAULT 'basic' CHECK (plan IN ('basic', 'premium', 'pro', 'enterprise')),
+  grade VARCHAR(10) DEFAULT 'Lớp 1' CHECK (grade IN ('Lớp 1', 'Lớp 2', 'Lớp 3', 'Lớp 4', 'Lớp 5', 'Lớp 6', 'Lớp 7', 'Lớp 8', 'Lớp 9', 'Lớp 10', 'Lớp 11', 'Lớp 12')),
   token_quota INTEGER DEFAULT 500,
   token_used_today INTEGER DEFAULT 0,
   last_reset DATE DEFAULT CURRENT_DATE,

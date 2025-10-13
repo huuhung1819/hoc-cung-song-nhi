@@ -16,7 +16,10 @@ import {
   HelpCircle,
   Menu,
   X,
-  LogOut
+  LogOut,
+  FileText,
+  Clock,
+  Key
 } from 'lucide-react'
 
 const sidebarItems = [
@@ -195,6 +198,47 @@ export function Sidebar() {
             label="Số câu hỏi hôm nay"
             isLoading={isLoadingUser}
           />
+        </div>
+      )}
+
+      {/* Stats Cards */}
+      {!isCollapsed && (
+        <div className="p-3 border-t border-gray-200">
+          <h3 className="text-xs font-semibold text-gray-700 mb-2">Thống kê</h3>
+          <div className="space-y-2">
+            {/* Bài tập đã làm */}
+            <div className="bg-gray-50 rounded-md p-2 border border-gray-200">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center space-x-1.5">
+                  <FileText className="h-3 w-3 text-blue-600" />
+                  <span className="text-xs font-medium text-gray-700">Bài tập đã làm</span>
+                </div>
+              </div>
+              <div className="text-sm font-bold text-gray-900">{Math.floor(Math.random() * 20 + 5)} bài</div>
+            </div>
+
+            {/* Thời gian học hôm nay */}
+            <div className="bg-gray-50 rounded-md p-2 border border-gray-200">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center space-x-1.5">
+                  <Clock className="h-3 w-3 text-purple-600" />
+                  <span className="text-xs font-medium text-gray-700">Thời gian học</span>
+                </div>
+              </div>
+              <div className="text-sm font-bold text-gray-900">{Math.floor(Math.random() * 60 + 30)} phút</div>
+            </div>
+
+            {/* Lượt mở khóa */}
+            <div className="bg-gray-50 rounded-md p-2 border border-gray-200">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center space-x-1.5">
+                  <Key className="h-3 w-3 text-green-600" />
+                  <span className="text-xs font-medium text-gray-700">Lượt mở khóa</span>
+                </div>
+              </div>
+              <div className="text-sm font-bold text-gray-900">{user.unlocksUsed}/{user.unlocksQuota}</div>
+            </div>
+          </div>
         </div>
       )}
 

@@ -235,10 +235,8 @@ export class PaymentManager {
       throw new Error('Failed to fetch package info');
     }
 
-    // Map package name to valid plan name
-    const validPlan = packageInfo.name === 'free' ? 'basic' : 
-                     packageInfo.name === 'teacher' ? 'pro' : 
-                     packageInfo.name;
+    // Use package name directly as plan name (no mapping needed)
+    const validPlan = packageInfo.name;
 
     // Create subscription manually
     const { data: subscription, error: subscriptionError } = await supabase
@@ -330,45 +328,61 @@ export class PaymentManager {
 
   /**
    * Send approval notification to user
+   * Note: This is a best-effort notification. If it fails, the payment is still approved.
+   * Users can check their payment status via the UI.
    */
   private static async sendApprovalNotification(userId: string, paymentRequestId: string): Promise<void> {
-    // Create notification
-    const { error } = await supabase
-      .from('notifications')
-      .insert({
-        user_id: userId,
-        title: '✅ Thanh toán đã được duyệt!',
-        message: 'Gói subscription của bạn đã được kích hoạt. Bạn có thể sử dụng ngay bây giờ!',
-        type: 'success',
-        action_url: '/dashboard'
-      });
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .insert({
+          user_id: userId,
+          title: '✅ Thanh toán đã được duyệt!',
+          message: 'Gói subscription của bạn đã được kích hoạt. Bạn có thể sử dụng ngay bây giờ!',
+          type: 'success',
+          action_url: '/dashboard'
+        });
 
-    if (error) {
-      console.error('Failed to send approval notification:', error);
+      if (error) {
+        console.error('Failed to send approval notification:', error);
+        // Not throwing error - notification is nice-to-have, not critical
+        // User can still check status via payment status page
+      }
+    } catch (error) {
+      console.error('Exception in sendApprovalNotification:', error);
+      // Gracefully handle - don't let notification failure affect payment approval
     }
   }
 
   /**
    * Send rejection notification to user
+   * Note: This is a best-effort notification. If it fails, the payment is still rejected.
+   * Users can check their payment status via the UI.
    */
   private static async sendRejectionNotification(
     userId: string,
     paymentRequestId: string,
     reason: string
   ): Promise<void> {
-    // Create notification
-    const { error } = await supabase
-      .from('notifications')
-      .insert({
-        user_id: userId,
-        title: '❌ Thanh toán bị từ chối',
-        message: `Thanh toán của bạn không thể được xử lý. Lý do: ${reason}`,
-        type: 'error',
-        action_url: '/pricing'
-      });
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .insert({
+          user_id: userId,
+          title: '❌ Thanh toán bị từ chối',
+          message: `Thanh toán của bạn không thể được xử lý. Lý do: ${reason}`,
+          type: 'error',
+          action_url: '/pricing'
+        });
 
-    if (error) {
-      console.error('Failed to send rejection notification:', error);
+      if (error) {
+        console.error('Failed to send rejection notification:', error);
+        // Not throwing error - notification is nice-to-have, not critical
+        // User can still check status via payment status page
+      }
+    } catch (error) {
+      console.error('Exception in sendRejectionNotification:', error);
+      // Gracefully handle - don't let notification failure affect payment rejection
     }
   }
 

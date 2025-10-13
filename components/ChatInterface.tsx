@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Send, Bot, User, AlertCircle, Upload, Key, Lightbulb, CheckCircle } from 'lucide-react'
+import { SubjectSelector } from './SubjectSelector'
+import { ExerciseDisplay } from './ExerciseDisplay'
 
 interface Message {
   id: string
@@ -22,6 +24,8 @@ interface ChatInterfaceProps {
   isUnlockMode?: boolean
   onModeChange?: (mode: 'coach' | 'solve') => void
   onNewMessage?: () => void
+  onRegisterSendExercise?: (sendFn: (exercise: string, mode: 'coach' | 'solve') => void) => void
+  onRegisterMessagesRef?: (ref: React.RefObject<HTMLDivElement>) => void
 }
 
 export function ChatInterface({ 
@@ -31,7 +35,9 @@ export function ChatInterface({
   className,
   isUnlockMode = false,
   onModeChange,
-  onNewMessage
+  onNewMessage,
+  onRegisterSendExercise,
+  onRegisterMessagesRef
 }: ChatInterfaceProps) {
   const [conversationId, setConversationId] = useState(initialConversationId)
   const [messages, setMessages] = useState<Message[]>([
@@ -47,7 +53,11 @@ export function ChatInterface({
   const [error, setError] = useState('')
   const [currentMode, setCurrentMode] = useState<'coach' | 'solve'>('coach')
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [aiState, setAiState] = useState<'sleep' | 'active'>('sleep')
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null)
+  const [selectedSubSubject, setSelectedSubSubject] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesAreaRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Update conversationId when prop changes
@@ -55,13 +65,137 @@ export function ChatInterface({
     setConversationId(initialConversationId)
   }, [initialConversationId])
 
+  // Listen for switch to coach mode event from navbar
+  useEffect(() => {
+    const handleSwitchToCoachMode = () => {
+      setCurrentMode('coach')
+    }
+
+    const handleSwitchToSolveMode = () => {
+      setCurrentMode('solve')
+    }
+
+    window.addEventListener('switchToCoachMode', handleSwitchToCoachMode)
+    window.addEventListener('switchToSolveMode', handleSwitchToSolveMode)
+    
+    return () => {
+      window.removeEventListener('switchToCoachMode', handleSwitchToCoachMode)
+      window.removeEventListener('switchToSolveMode', handleSwitchToSolveMode)
+    }
+  }, [])
+
+  // Register sendExerciseToChat function for external use
+  useEffect(() => {
+    if (onRegisterSendExercise) {
+      onRegisterSendExercise(sendExerciseToChat)
+    }
+  }, [onRegisterSendExercise])
+
+  // Register messages ref for external scroll control
+  useEffect(() => {
+    if (onRegisterMessagesRef) {
+      onRegisterMessagesRef(messagesAreaRef)
+    }
+  }, [onRegisterMessagesRef])
+
+  // Handle subject selection
+  const handleSubjectSelect = (subject: string, subSubject: string) => {
+    setSelectedSubject(subject)
+    setSelectedSubSubject(subSubject)
+    setAiState('active')
+  }
+
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    // Use messagesAreaRef instead of messagesEndRef for better scroll control
+    setTimeout(() => {
+      if (messagesAreaRef.current) {
+        messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight
+      }
+    }, 100) // Small delay to ensure DOM is updated
   }
 
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Additional scroll when AI responds
+  useEffect(() => {
+    if (messages.length > 0 && messages[messages.length - 1]?.role === 'assistant') {
+      scrollToBottom()
+    }
+  }, [messages])
+
+  // Function to send exercise to chat (called from ExerciseGenerator)
+  const sendExerciseToChat = async (exercise: string, mode: 'coach' | 'solve') => {
+    // Set mode first
+    setCurrentMode(mode)
+    if (onModeChange) {
+      onModeChange(mode)
+    }
+
+    // Create user message
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: exercise,
+      timestamp: new Date()
+    }
+
+    setMessages(prev => [...prev, userMessage])
+    setIsLoading(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          message: exercise,
+          lessonContent,
+          conversationId,
+          mode,
+          unlockCode: mode === 'solve' ? (localStorage.getItem('unlockCode') || '1234') : undefined
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Có lỗi xảy ra')
+      }
+
+      // Debug log
+      console.log('API Response:', data)
+      console.log('Reply content:', data.reply)
+
+      // Update conversationId if new
+      if (data.conversationId && !conversationId) {
+        setConversationId(data.conversationId)
+      }
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.reply || data.message || 'Không có phản hồi',
+        timestamp: new Date()
+      }
+
+      setMessages(prev => [...prev, assistantMessage])
+      
+      if (onNewMessage) {
+        onNewMessage()
+      }
+
+    } catch (err: any) {
+      setError(err.message || 'Có lỗi xảy ra khi gửi tin nhắn')
+      console.error('Error sending exercise:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleModeChange = (mode: 'coach' | 'solve') => {
     setCurrentMode(mode)
@@ -156,6 +290,10 @@ export function ChatInterface({
         throw new Error(data.error || 'Có lỗi xảy ra')
       }
 
+      // Debug log
+      console.log('handleSendMessage API Response:', data)
+      console.log('handleSendMessage Reply content:', data.reply)
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -239,8 +377,8 @@ export function ChatInterface({
           )}
         </div>
 
-        {/* Messages */}
-        <div className="h-80 overflow-y-auto p-4 space-y-4">
+        {/* Main Content */}
+        <div ref={messagesAreaRef} className="h-80 overflow-y-auto p-4 space-y-4">
           {messages.map((message) => (
             <div
               key={message.id}

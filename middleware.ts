@@ -123,6 +123,17 @@ export async function middleware(request: NextRequest) {
     supabaseResponse = newResponse
   }
 
+  // Preview routes - public access (no auth required)
+  const publicPreviewRoutes = ['/preview-dashboard']
+  const isPublicPreview = publicPreviewRoutes.some(route =>
+    request.nextUrl.pathname.startsWith(route)
+  )
+  
+  // Allow public preview routes without authentication
+  if (isPublicPreview) {
+    return supabaseResponse
+  }
+
   // Protected routes with role-based access
   const protectedRoutes = ['/dashboard', '/teacher', '/admin']
   const adminOnlyRoutes = ['/admin']

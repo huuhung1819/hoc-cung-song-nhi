@@ -3,7 +3,7 @@ import { createServiceClient } from '@/lib/supabaseServer'
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, name, email, phone } = await request.json()
+    const { userId, name, email, phone, grade } = await request.json()
 
     if (!userId) {
       return NextResponse.json({ error: 'Thiếu User ID' }, { status: 400 })
@@ -16,6 +16,10 @@ export async function POST(request: NextRequest) {
     if (name) updateData.name = name
     if (email) updateData.email = email
     if (phone) updateData.phone = phone
+    if (grade) updateData.grade = grade
+
+    console.log('Updating user with data:', updateData)
+    console.log('User ID:', userId)
 
     const { data: updatedUser, error } = await supabase
       .from('users')

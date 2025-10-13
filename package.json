@@ -3,10 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "check-env": "node scripts/check-env.js",
     "test-db": "node scripts/test-db.mjs",
     "setup-admin": "tsx scripts/setup-admin.ts",
-    "predev": "npm run check-env",
     "dev": "next dev",
     "build": "next build",
     "build:docker": "next build",

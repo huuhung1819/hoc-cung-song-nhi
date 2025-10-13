@@ -5,15 +5,13 @@ import { NavbarPreview } from '@/components/NavbarPreview'
 import Link from 'next/link'
 import { useAuth } from '@/lib/authContext'
 import { useState, useEffect } from 'react'
-import { useIsMobile } from '@/lib/hooks/useMediaQuery'
 
-export default function DashboardLayout({
+export default function DashboardPreviewLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   const { user: authUser } = useAuth()
-  const isMobile = useIsMobile()
   const [userRole, setUserRole] = useState<string>('parent')
   const [userPlan, setUserPlan] = useState<string>('free')
 
@@ -54,14 +52,14 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar - Hidden on mobile, visible on desktop */}
-      {!isMobile && (
+      {/* Sidebar - Hidden on mobile, visible on md+ */}
+      <div className="hidden md:block">
         <Sidebar />
-      )}
+      </div>
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* 🆕 Sử dụng NavbarPreview thay vì Navbar cũ */}
+        {/* 🆕 Sử dụng NavbarPreview thay vì Navbar */}
         <NavbarPreview />
         
         {/* Upgrade Banner for Free Users (only for parents with free plan) */}
@@ -86,3 +84,4 @@ export default function DashboardLayout({
     </div>
   )
 }
+

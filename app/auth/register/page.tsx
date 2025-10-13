@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [fullName, setFullName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [grade, setGrade] = useState('Lớp 1')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -51,6 +52,11 @@ export default function RegisterPage() {
 
     if (!phoneNumber.trim()) {
       setError('Vui lòng không bỏ trống trường số điện thoại')
+      return
+    }
+
+    if (!grade.trim()) {
+      setError('Vui lòng chọn lớp học')
       return
     }
 
@@ -104,7 +110,15 @@ export default function RegisterPage() {
       } else if (data.user) {
         // Update user info with full name and phone
         try {
-          await fetch('/api/user/update', {
+          console.log('Updating user info:', {
+            userId: data.user.id,
+            name: fullName,
+            email: email,
+            phone: phoneNumber,
+            grade: grade,
+          })
+          
+          const updateResponse = await fetch('/api/user/update', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -114,8 +128,12 @@ export default function RegisterPage() {
               name: fullName,
               email: email,
               phone: phoneNumber,
+              grade: grade,
             }),
           })
+          
+          const updateResult = await updateResponse.json()
+          console.log('Update result:', updateResult)
         } catch (updateError) {
           console.error('Error updating user info:', updateError)
           // Don't fail the registration if update fails
@@ -216,6 +234,37 @@ export default function RegisterPage() {
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 maxLength={10}
               />
+            </div>
+
+            {/* Grade Selection */}
+            <div>
+              <label htmlFor="grade" className="block text-sm font-medium text-gray-700 mb-2">
+                Lớp học của con <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="grade"
+                name="grade"
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                value={grade}
+                onChange={(e) => setGrade(e.target.value)}
+              >
+                <option value="Lớp 1">Lớp 1</option>
+                <option value="Lớp 2">Lớp 2</option>
+                <option value="Lớp 3">Lớp 3</option>
+                <option value="Lớp 4">Lớp 4</option>
+                <option value="Lớp 5">Lớp 5</option>
+                <option value="Lớp 6">Lớp 6</option>
+                <option value="Lớp 7">Lớp 7</option>
+                <option value="Lớp 8">Lớp 8</option>
+                <option value="Lớp 9">Lớp 9</option>
+                <option value="Lớp 10">Lớp 10</option>
+                <option value="Lớp 11">Lớp 11</option>
+                <option value="Lớp 12">Lớp 12</option>
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                AI sẽ tạo bài tập phù hợp với lớp học này
+              </p>
             </div>
 
             {/* Password */}
