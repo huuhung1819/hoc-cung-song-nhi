@@ -110,7 +110,18 @@ export default function ResetPasswordPage() {
       })
 
       if (error) {
-        setError(error.message)
+        // Translate common Supabase error messages to Vietnamese
+        let errorMessage = error.message
+        if (error.message.includes('Password should be at least')) {
+          errorMessage = 'Mật khẩu phải có ít nhất 6 ký tự'
+        } else if (error.message.includes('Password too weak')) {
+          errorMessage = 'Mật khẩu quá yếu. Vui lòng chọn mật khẩu mạnh hơn'
+        } else if (error.message.includes('Session not found')) {
+          errorMessage = 'Phiên đăng nhập không hợp lệ. Vui lòng thử lại từ email'
+        } else if (error.message.includes('Invalid session')) {
+          errorMessage = 'Phiên đăng nhập không hợp lệ hoặc đã hết hạn'
+        }
+        setError(errorMessage)
       } else {
         setSuccess(true)
         // Redirect to login after 3 seconds

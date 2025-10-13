@@ -74,6 +74,8 @@ export function NavbarPreview() {
       const response = await fetch(`/api/user/info?userId=${authUser.id}`)
       if (response.ok) {
         const data = await response.json()
+        console.log('API response for user info:', data)
+        console.log('User name from API:', data.user.name)
         setUser(prev => ({
           ...prev,
           name: data.user.name || authUser.email?.split('@')[0] || 'User',

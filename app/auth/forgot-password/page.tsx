@@ -31,7 +31,18 @@ export default function ForgotPasswordPage() {
           })
 
       if (error) {
-        setError(error.message)
+        // Translate common Supabase error messages to Vietnamese
+        let errorMessage = error.message
+        if (error.message.includes('User not found')) {
+          errorMessage = 'Không tìm thấy tài khoản với email này'
+        } else if (error.message.includes('Invalid email')) {
+          errorMessage = 'Email không hợp lệ'
+        } else if (error.message.includes('Email rate limit exceeded')) {
+          errorMessage = 'Gửi email quá nhiều. Vui lòng thử lại sau ít phút'
+        } else if (error.message.includes('For security purposes')) {
+          errorMessage = 'Vì lý do bảo mật, vui lòng thử lại sau ít phút'
+        }
+        setError(errorMessage)
       } else {
         setSuccess(true)
       }

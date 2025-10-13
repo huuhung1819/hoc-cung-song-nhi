@@ -106,7 +106,22 @@ export default function RegisterPage() {
       })
 
       if (error) {
-        setError(error.message)
+        // Translate common Supabase error messages to Vietnamese
+        let errorMessage = error.message
+        if (error.message.includes('User already registered')) {
+          errorMessage = 'Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác'
+        } else if (error.message.includes('Password should be at least')) {
+          errorMessage = 'Mật khẩu phải có ít nhất 6 ký tự'
+        } else if (error.message.includes('Invalid email')) {
+          errorMessage = 'Email không hợp lệ'
+        } else if (error.message.includes('Password too weak')) {
+          errorMessage = 'Mật khẩu quá yếu. Vui lòng chọn mật khẩu mạnh hơn'
+        } else if (error.message.includes('Email rate limit exceeded')) {
+          errorMessage = 'Gửi email quá nhiều. Vui lòng thử lại sau ít phút'
+        } else if (error.message.includes('Signup is disabled')) {
+          errorMessage = 'Đăng ký tạm thời bị tắt. Vui lòng liên hệ quản trị viên'
+        }
+        setError(errorMessage)
       } else if (data.user) {
         // Update user info with full name and phone
         try {

@@ -92,7 +92,22 @@ function LoginForm() {
       })
 
       if (error) {
-        setError(error.message)
+        // Translate common Supabase error messages to Vietnamese
+        let errorMessage = error.message
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Thông tin đăng nhập không chính xác'
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Email chưa được xác thực. Vui lòng kiểm tra hộp thư'
+        } else if (error.message.includes('Too many requests')) {
+          errorMessage = 'Quá nhiều lần thử. Vui lòng thử lại sau'
+        } else if (error.message.includes('User not found')) {
+          errorMessage = 'Không tìm thấy tài khoản'
+        } else if (error.message.includes('Invalid email')) {
+          errorMessage = 'Email không hợp lệ'
+        } else if (error.message.includes('Password should be at least')) {
+          errorMessage = 'Mật khẩu quá ngắn'
+        }
+        setError(errorMessage)
       } else {
         // Handle remember me functionality
         if (rememberMe) {

@@ -22,6 +22,9 @@ export async function GET(request: NextRequest) {
       .eq('id', userId)
       .single()
 
+    console.log('User data from database:', userData)
+    console.log('User error:', userError)
+
     // Get token info from tokenManager
     const tokenInfo = await tokenManager.getTokenInfo(userId)
     
