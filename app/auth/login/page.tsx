@@ -1,26 +1,36 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabaseClient'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Eye, EyeOff } from 'lucide-react'
 
-export default function LoginPage() {
+function LoginForm() {
   const [emailOrPhone, setEmailOrPhone] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [captchaChecked, setCaptchaChecked] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
+
+  // Check for email verification success
+  useEffect(() => {
+    const verified = searchParams.get('verified')
+    if (verified === 'true') {
+      setSuccess('✅ Email đã được xác thực thành công! Bạn có thể đăng nhập ngay bây giờ.')
+    }
+  }, [searchParams])
 
   // Helper function to get email from phone number
   const getEmailFromPhone = async (phone: string) => {
@@ -96,7 +106,24 @@ export default function LoginPage() {
         }
 
         // Redirect based on user role
-        router.push('/dashboard')
+        // Get user role from API to determine redirect destination
+        try {
+          const userId = data?.user?.id
+          if (!userId) {
+            throw new Error('Missing user id after login')
+          }
+          const userInfoResponse = await fetch(`/api/user/info?userId=${userId}`)
+          const userInfo = await userInfoResponse.json()
+          
+          if (userInfo.success && userInfo.user.role === 'admin') {
+            router.push('/admin')
+          } else {
+            router.push('/dashboard')
+          }
+        } catch (error) {
+          console.error('Error getting user role:', error)
+          router.push('/dashboard') // fallback
+        }
       }
     } catch (err) {
       setError('Có lỗi xảy ra khi đăng nhập')
@@ -105,53 +132,30 @@ export default function LoginPage() {
     }
   }
 
-  const handleDemoLogin = async (role: string) => {
-    setLoading(true)
-    try {
-      // Demo login - create demo user session
-      const demoUser = {
-        id: 'demo-user-id',
-        email: 'demo@example.com',
-        name: 'Nguyễn Văn A',
-        role: role
-      }
-      
-      // Store demo user in localStorage for demo purposes
-      localStorage.setItem('demo-user', JSON.stringify(demoUser))
-      
-      // Redirect to appropriate dashboard
-      if (role === 'parent') {
-        router.push('/dashboard')
-      } else if (role === 'teacher') {
-        router.push('/teacher')
-      } else if (role === 'admin') {
-        router.push('/admin')
-      }
-    } catch (err) {
-      setError('Có lỗi xảy ra')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex items-center justify-center mb-4">
+        <CardHeader className="text-center p-4 sm:p-6">
+          <div className="flex items-center justify-center mb-3 sm:mb-4">
             <img
               src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=48&h=48&fit=crop&crop=face&auto=format"
               alt="2 bé hoạt hình"
-              className="w-12 h-12 rounded-full object-cover"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
             />
           </div>
-          <CardTitle className="text-2xl font-bold">HỌC CÙNG SONG NHI</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-xl sm:text-2xl font-bold">HỌC CÙNG SONG NHI</CardTitle>
+          <CardDescription className="text-sm sm:text-base">
             Đăng nhập vào hệ thống
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           <form onSubmit={handleLogin} className="space-y-4">
+            {success && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4">
+                <p className="text-green-600 text-xs sm:text-sm text-center">{success}</p>
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="emailOrPhone">Email hoặc Số điện thoại</Label>
               <Input
@@ -190,18 +194,18 @@ export default function LoginPage() {
             </div>
 
             {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="remember"
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                 />
-                <Label htmlFor="remember" className="text-sm font-normal">
+                <Label htmlFor="remember" className="text-xs sm:text-sm font-normal">
                   Ghi nhớ đăng nhập
                 </Label>
               </div>
-              <Link href="/auth/forgot-password" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+              <Link href="/auth/forgot-password" className="text-xs sm:text-sm font-medium text-indigo-600 hover:text-indigo-500 text-center sm:text-right">
                 Quên mật khẩu?
               </Link>
             </div>
@@ -213,61 +217,21 @@ export default function LoginPage() {
                 checked={captchaChecked}
                 onCheckedChange={(checked) => setCaptchaChecked(checked as boolean)}
               />
-              <Label htmlFor="captcha" className="text-sm font-normal">
+              <Label htmlFor="captcha" className="text-xs sm:text-sm font-normal">
                 Tôi không phải robot
               </Label>
             </div>
 
             {error && (
-              <div className="text-red-500 text-sm">{error}</div>
+              <div className="text-red-500 text-xs sm:text-sm">{error}</div>
             )}
-            <Button type="submit" className="w-full" disabled={loading || !captchaChecked}>
+            <Button type="submit" className="w-full text-sm sm:text-base" disabled={loading || !captchaChecked}>
               {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </Button>
           </form>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Hoặc đăng nhập demo
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-4 space-y-2">
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => handleDemoLogin('parent')}
-                disabled={loading}
-              >
-                Demo Phụ huynh
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => handleDemoLogin('teacher')}
-                disabled={loading}
-              >
-                Demo Giáo viên
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => handleDemoLogin('admin')}
-                disabled={loading}
-              >
-                Demo Quản trị viên
-              </Button>
-            </div>
-          </div>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+          <div className="mt-4 sm:mt-6 text-center">
+            <p className="text-xs sm:text-sm text-gray-600">
               Chưa có tài khoản?{' '}
               <Link href="/auth/register" className="text-blue-600 hover:underline">
                 Đăng ký ngay
@@ -277,5 +241,20 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Đang tải...</p>
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }
