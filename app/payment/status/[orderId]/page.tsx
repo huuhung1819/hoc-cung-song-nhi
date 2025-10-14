@@ -44,6 +44,7 @@ export default function PaymentStatusPage({ params }: PaymentStatusPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastChecked, setLastChecked] = useState<Date>(new Date());
+  const [countdown, setCountdown] = useState<number>(3);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchPaymentStatus = async () => {
@@ -91,6 +92,35 @@ export default function PaymentStatusPage({ params }: PaymentStatusPageProps) {
       intervalRef.current = null;
     }
   }, [paymentStatus]);
+
+  // Auto-redirect to dashboard when payment is approved
+  useEffect(() => {
+    if (paymentStatus?.status === 'approved') {
+      // Reset countdown
+      setCountdown(3);
+      
+      // Countdown timer
+      const countdownInterval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      
+      // Redirect timer
+      const redirectTimer = setTimeout(() => {
+        router.push('/dashboard');
+      }, 3000); // 3 seconds delay
+      
+      return () => {
+        clearTimeout(redirectTimer);
+        clearInterval(countdownInterval);
+      };
+    }
+  }, [paymentStatus?.status, router]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -288,11 +318,16 @@ export default function PaymentStatusPage({ params }: PaymentStatusPageProps) {
                   Gói subscription của bạn đã được kích hoạt. 
                   Bạn có thể sử dụng ngay bây giờ!
                 </p>
+                {countdown > 0 && (
+                  <p className="text-sm text-green-600 mb-3">
+                    Tự động chuyển về Dashboard sau <span className="font-bold">{countdown}</span> giây...
+                  </p>
+                )}
                 <Button 
                   onClick={() => router.push('/dashboard')}
                   className="bg-green-500 hover:bg-green-600"
                 >
-                  Vào Dashboard
+                  {countdown > 0 ? 'Vào Dashboard ngay' : 'Vào Dashboard'}
                 </Button>
               </div>
             </CardContent>
