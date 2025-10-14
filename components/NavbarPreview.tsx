@@ -12,6 +12,7 @@ import { UpgradeButton } from './UpgradeButton'
 import { MobileDrawer } from './MobileDrawer'
 import { useAuth } from '@/lib/authContext'
 import { useIsMobile } from '@/lib/hooks/useMediaQuery'
+import { useNotifications } from '@/lib/hooks/useNotifications'
 
 export function NavbarPreview() {
   const { user: authUser, signOut } = useAuth()
@@ -34,32 +35,16 @@ export function NavbarPreview() {
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: 'Bài học mới',
-      message: 'Có bài học mới "Khoa học: Thực vật xung quanh"',
-      time: '2 phút trước',
-      read: false,
-      type: 'lesson'
-    },
-    {
-      id: 2,
-      title: 'Nhắc nhở học tập',
-      message: 'Đã đến giờ học Toán rồi!',
-      time: '1 giờ trước',
-      read: false,
-      type: 'reminder'
-    },
-    {
-      id: 3,
-      title: 'Hoàn thành bài học',
-      message: 'Chúc mừng! Bạn đã hoàn thành bài "Tiếng Việt: Đọc và viết chữ cái"',
-      time: '3 giờ trước',
-      read: true,
-      type: 'achievement'
-    }
-  ])
+  
+  // Use real notifications hook instead of mock data
+  const { 
+    notifications: realNotifications, 
+    unreadCount, 
+    isConnected, 
+    lastNotification,
+    markAsRead, 
+    markAllAsRead 
+  } = useNotifications(authUser?.id || null)
   const searchRef = useRef<HTMLDivElement>(null)
   const notificationsRef = useRef<HTMLDivElement>(null)
   const profileRef = useRef<HTMLDivElement>(null)
@@ -181,29 +166,26 @@ export function NavbarPreview() {
   }, [])
 
   // Handle notification click
-  const handleNotificationClick = (notification: any) => {
-    // Mark as read
-    setNotifications(prev => 
-      prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
-    )
+  const handleNotificationClick = async (notification: any) => {
+    // Mark as read using hook
+    await markAsRead(notification.id)
     
     // Navigate based on notification type
-    if (notification.type === 'lesson') {
-      router.push('/dashboard/lessons')
-    } else if (notification.type === 'achievement') {
-      router.push('/dashboard/progress')
+    if (notification.type === 'assignment') {
+      router.push('/dashboard/assignments')
+    } else if (notification.type === 'grade') {
+      router.push('/dashboard/assignments')
+    } else {
+      router.push('/dashboard/assignments')
     }
     
     setShowNotifications(false)
   }
 
-  // Mark all notifications as read
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-  }
+  // markAllAsRead is now provided by useNotifications hook
 
   // Get unread count
-  const unreadCount = notifications.filter(n => !n.read).length
+  // unreadCount is now provided by useNotifications hook
 
   // Handle Enter key press
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -350,13 +332,13 @@ export function NavbarPreview() {
                 </div>
                 
                 <div className="max-h-80 overflow-y-auto">
-                  {notifications.length > 0 ? (
-                    notifications.map((notification) => (
+                  {realNotifications.length > 0 ? (
+                    realNotifications.map((notification) => (
                       <button
                         key={notification.id}
                         onClick={() => handleNotificationClick(notification)}
                         className={`w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 ${
-                          !notification.read ? 'bg-blue-50' : ''
+                          !notification.is_read ? 'bg-blue-50' : ''
                         }`}
                       >
                         <div className="flex items-start space-x-3">
@@ -367,7 +349,7 @@ export function NavbarPreview() {
                           }`} />
                           <div className="flex-1">
                             <p className={`font-medium ${
-                              !notification.read ? 'text-gray-900' : 'text-gray-700'
+                              !notification.is_read ? 'text-gray-900' : 'text-gray-700'
                             }`}>
                               {notification.title}
                             </p>
@@ -375,10 +357,10 @@ export function NavbarPreview() {
                               {notification.message}
                             </p>
                             <p className="text-xs text-gray-500 mt-1">
-                              {notification.time}
+                              {new Date(notification.created_at).toLocaleString('vi-VN')}
                             </p>
                           </div>
-                          {!notification.read && (
+                          {!notification.is_read && (
                             <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
                           )}
                         </div>

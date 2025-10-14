@@ -2,6 +2,7 @@
 
 import { Sidebar } from '@/components/Sidebar'
 import { NavbarPreview } from '@/components/NavbarPreview'
+import { NotificationPopup, useNotificationPopup } from '@/components/NotificationPopup'
 import Link from 'next/link'
 import { useAuth } from '@/lib/authContext'
 import { useState, useEffect } from 'react'
@@ -16,6 +17,9 @@ export default function DashboardLayout({
   const isMobile = useIsMobile()
   const [userRole, setUserRole] = useState<string>('parent')
   const [userPlan, setUserPlan] = useState<string>('free')
+  
+  // Notification popup system
+  const { currentNotification, hideNotification } = useNotificationPopup()
 
   useEffect(() => {
     if (authUser) {
@@ -81,6 +85,30 @@ export default function DashboardLayout({
           </div>
         </main>
       </div>
+      
+      {/* Notification Popup */}
+      <NotificationPopup
+        notification={currentNotification}
+        onClose={hideNotification}
+        onMarkAsRead={(notificationId) => {
+          // Mark as read via API
+          fetch(`/api/notifications/${notificationId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ is_read: true })
+          }).catch(console.error)
+        }}
+        onNavigate={(notification) => {
+          // Navigate based on notification type
+          if (notification.type === 'assignment') {
+            window.location.href = '/dashboard/assignments'
+          } else if (notification.type === 'grade') {
+            window.location.href = '/dashboard/assignments'
+          } else {
+            window.location.href = '/dashboard/assignments'
+          }
+        }}
+      />
     </div>
   )
 }
