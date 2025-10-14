@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import OpenAI from 'openai'
 import { createServiceClient } from '@/lib/supabaseServer'
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,8 +26,8 @@ export async function POST(req: NextRequest) {
         if (!error && user?.grade) {
           grade = user.grade
         }
-      } catch (error) {
-        console.error('Error fetching user grade:', error)
+      } catch (error: any) {
+        console.error('Error fetching user grade:', error.message)
         // Continue with default grade
       }
     }
@@ -40,28 +35,66 @@ export async function POST(req: NextRequest) {
     // Tạo prompt cho AI dựa trên môn học và loại bài tập
     const prompt = createPrompt(subject, subSubject, grade || 'Lớp 1', count)
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: `Bạn là một giáo viên giàu kinh nghiệm. Nhiệm vụ của bạn là tạo ra ${count} bài tập ${subject} - ${subSubject} cho học sinh ${grade || 'Lớp 1'} theo chương trình Bộ Giáo dục và Đào tạo Việt Nam. 
+    // Sanitize API key to avoid illegal header characters (remove ALL control chars)
+    const apiKey = (process.env.OPENAI_API_KEY || '')
+      .trim()
+      .replace(/[\x00-\x1F\x7F]/g, '')
+
+    if (!apiKey || apiKey.length < 40) {
+      // Key missing or malformed; avoid leaking any details
+      return NextResponse.json(
+        { error: 'Failed to generate exercises' },
+        { status: 500 }
+      )
+    }
+
+    // Prepare headers safely; catch any header construction issues to avoid leaking key in logs
+    let headers: Headers
+    try {
+      headers = new Headers({ 'Content-Type': 'application/json' })
+      headers.set('Authorization', `Bearer ${apiKey}`)
+    } catch {
+      return NextResponse.json(
+        { error: 'Failed to generate exercises' },
+        { status: 500 }
+      )
+    }
+
+    // Call OpenAI Chat Completions API directly
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: `Bạn là một giáo viên giàu kinh nghiệm. Nhiệm vụ của bạn là tạo ra ${count} bài tập ${subject} - ${subSubject} cho học sinh ${grade || 'Lớp 1'} theo chương trình Bộ Giáo dục và Đào tạo Việt Nam. 
 
 QUAN TRỌNG: 
 - Đối với lớp 1-2: KHÔNG BAO GIỜ mention "hình", "trong hình", "nhìn hình", "quan sát hình" vì không có hình ảnh minh họa
 - Chỉ tạo bài tập text thuần túy, phù hợp độ tuổi và có giá trị giáo dục
 - Đề bài và đáp án phải nhất quán, không gây hiểu nhầm`
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      temperature: 0.8,
-      max_tokens: 2000,
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.8,
+        max_tokens: 2000,
+      }),
     })
 
-    const exercisesText = completion.choices[0]?.message?.content || ''
+    if (!response.ok) {
+      // Don't surface provider error details to clients
+      return NextResponse.json(
+        { error: 'Failed to generate exercises' },
+        { status: 500 }
+      )
+    }
+    const data = await response.json()
+    const exercisesText = data.choices?.[0]?.message?.content || ''
     
     // Parse exercises từ response
     const exercises = parseExercises(exercisesText, count)
@@ -75,9 +108,9 @@ QUAN TRỌNG:
     })
 
   } catch (error: any) {
-    console.error('Error generating exercises:', error)
+    console.error('Error generating exercises:', error.message)
     return NextResponse.json(
-      { error: error.message || 'Failed to generate exercises' },
+      { error: 'Failed to generate exercises' },
       { status: 500 }
     )
   }
