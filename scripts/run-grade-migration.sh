@@ -40,3 +40,4 @@ fi
 
 echo "🔍 Verifying migration..."
 echo "You can check the database schema with: supabase db diff"
+

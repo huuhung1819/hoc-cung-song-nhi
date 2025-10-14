@@ -86,10 +86,10 @@ export function SubjectSelector({ onSubjectSelect, isUnlockMode }: SubjectSelect
       {selectedSubject && (
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">
-            {SUBJECTS[selectedSubject].icon} Chọn loại bài tập {SUBJECTS[selectedSubject].name}:
+            {SUBJECTS[selectedSubject as keyof typeof SUBJECTS]?.icon} Chọn loại bài tập {SUBJECTS[selectedSubject as keyof typeof SUBJECTS]?.name}:
           </h3>
           <div className="grid grid-cols-2 gap-2">
-            {SUBJECTS[selectedSubject].subSubjects.map((subSubject) => (
+            {SUBJECTS[selectedSubject as keyof typeof SUBJECTS]?.subSubjects.map((subSubject) => (
               <button
                 key={subSubject}
                 onClick={() => handleSubSubjectClick(subSubject)}

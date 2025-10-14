@@ -28,3 +28,4 @@ COMMENT ON COLUMN users.lesson_reminders IS 'User wants lesson reminders';
 COMMENT ON COLUMN users.progress_reports IS 'User wants progress reports';
 COMMENT ON COLUMN users.promotions IS 'User wants promotion notifications';
 COMMENT ON COLUMN users.avatar IS 'User avatar image URL';
+
