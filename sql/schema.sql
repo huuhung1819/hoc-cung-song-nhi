@@ -427,3 +427,44 @@ COMMENT ON TABLE system_settings IS 'Bảng cài đặt hệ thống';
 GRANT USAGE ON SCHEMA public TO authenticated;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+
+
+-- Bảng assignments: Lưu bài tập giáo viên giao
+CREATE TABLE assignments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  teacher_id UUID NOT NULL REFERENCES users(id),
+  title VARCHAR(255) NOT NULL,
+  subject VARCHAR(100) NOT NULL,
+  grade VARCHAR(50) NOT NULL,
+  topic VARCHAR(255),
+  deadline TIMESTAMP WITH TIME ZONE,
+  questions JSONB NOT NULL, -- Câu hỏi cho học sinh (không có đáp án)
+  answers JSONB, -- Đáp án cho giáo viên
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Bảng student_assignments: Học sinh nào nhận bài tập nào
+CREATE TABLE student_assignments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  assignment_id UUID NOT NULL REFERENCES assignments(id),
+  student_id UUID NOT NULL REFERENCES users(id),
+  status VARCHAR(20) DEFAULT 'assigned', -- assigned, submitted, graded
+  submitted_at TIMESTAMP WITH TIME ZONE,
+  answers JSONB, -- Câu trả lời của học sinh
+  grade DECIMAL(3,1),
+  feedback TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Bảng notifications: Thông báo cho học sinh
+CREATE TABLE notifications (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES users(id),
+  type VARCHAR(50) NOT NULL, -- assignment, grade, message
+  title VARCHAR(255) NOT NULL,
+  message TEXT,
+  data JSONB, -- Extra data (assignment_id, etc.)
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);

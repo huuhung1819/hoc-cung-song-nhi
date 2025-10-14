@@ -3,7 +3,7 @@ import { createServiceClient } from '@/lib/supabaseServer'
 
 export async function POST(req: NextRequest) {
   try {
-    const { subject, subSubject, userId, count = 5 } = await req.json()
+    const { subject, subSubject, userId, grade, count = 5 } = await req.json()
 
     if (!subject || !subSubject) {
       return NextResponse.json(
@@ -12,9 +12,9 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Get user's grade from database
-    let grade = 'Lớp 1' // Default fallback
-    if (userId) {
+    // Use grade from request body, fallback to database if not provided
+    let userGrade = grade || 'Lớp 1' // Default fallback
+    if (!grade && userId) {
       try {
         const supabase = createServiceClient()
         const { data: user, error } = await supabase
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
           .single()
         
         if (!error && user?.grade) {
-          grade = user.grade
+          userGrade = user.grade
         }
       } catch (error: any) {
         console.error('Error fetching user grade:', error.message)
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Tạo prompt cho AI dựa trên môn học và loại bài tập
-    const prompt = createPrompt(subject, subSubject, grade || 'Lớp 1', count)
+    const prompt = createPrompt(subject, subSubject, userGrade, count)
 
     // Sanitize API key to avoid illegal header characters (remove ALL control chars)
     const apiKey = (process.env.OPENAI_API_KEY || '')
@@ -103,7 +103,7 @@ QUAN TRỌNG:
       exercises,
       subject,
       subSubject,
-      grade: grade,
+      grade: userGrade,
       count: exercises.length
     })
 

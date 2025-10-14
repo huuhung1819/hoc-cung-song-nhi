@@ -54,10 +54,8 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar - Hidden on mobile, visible on desktop */}
-      {!isMobile && (
-        <Sidebar />
-      )}
+      {/* Sidebar - Always render, it handles mobile drawer internally */}
+      <Sidebar />
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -78,7 +76,7 @@ export default function DashboardLayout({
         )}
         
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
-          <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:py-8">
+          <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:py-8 pt-16 md:pt-4">
             {children}
           </div>
         </main>

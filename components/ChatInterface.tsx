@@ -127,6 +127,8 @@ export function ChatInterface({
 
   // Function to send exercise to chat (called from ExerciseGenerator)
   const sendExerciseToChat = async (exercise: string, mode: 'coach' | 'solve') => {
+    console.log('🤖 ChatInterface sendExerciseToChat called:', { exercise: exercise.substring(0, 50) + '...', mode, userId })
+    
     // Set mode first
     setCurrentMode(mode)
     if (onModeChange) {
