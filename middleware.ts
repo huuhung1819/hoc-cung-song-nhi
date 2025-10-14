@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { checkRateLimit, logAdminActivityFromRequest, checkAdminSession } from '@/lib/adminSecurity'
+import { canAccessRoute, hasPermission, ROUTE_PERMISSIONS, Permission } from '@/lib/permissions'
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -177,6 +178,41 @@ export async function middleware(request: NextRequest) {
   if (user && isProtectedRoute) {
     // Use the role resolved above from the database
     const userRole = currentUserRole
+
+    // Enhanced permission-based access control
+    const currentPath = request.nextUrl.pathname
+    
+    // Check if user can access the current route
+    if (!canAccessRoute(userRole, currentPath)) {
+      console.warn(`Unauthorized access attempt: User ${user.id} with role ${userRole} tried to access ${currentPath}`)
+      
+      // Log unauthorized access attempt
+      try {
+        await logAdminActivityFromRequest(
+          user.id,
+          'unauthorized_access_attempt',
+          request,
+          { 
+            attemptedRoute: currentPath,
+            userRole: userRole,
+            timestamp: new Date().toISOString()
+          }
+        )
+      } catch (error) {
+        console.error('Error logging unauthorized access:', error)
+      }
+      
+      // Redirect based on role
+      const url = request.nextUrl.clone()
+      if (userRole === 'admin') {
+        url.pathname = '/admin'
+      } else if (userRole === 'teacher') {
+        url.pathname = '/teacher'
+      } else {
+        url.pathname = '/dashboard'
+      }
+      return NextResponse.redirect(url)
+    }
 
     // Enhanced security for admin routes
     if (isAdminRoute && userRole === 'admin') {
