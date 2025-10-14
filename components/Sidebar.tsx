@@ -100,7 +100,7 @@ const getSidebarItems = (userRole: string) => {
       icon: Home
     },
     {
-      title: 'Bài học',
+      title: 'Bài tập cô giao',
       href: `${basePath}/assignments`,
       icon: BookOpen
     },

@@ -38,7 +38,7 @@ export const tokenManager = {
   },
 
   /**
-   * Check if user has token quota remaining
+   * Check if user has token quota remaining (ACCUMULATIVE - NO DAILY RESET)
    */
   async checkTokenQuota(userId: string): Promise<{ hasQuota: boolean; remaining: number; total: number }> {
     const supabase = createServerClientForAPI()
@@ -46,7 +46,7 @@ export const tokenManager = {
     try {
       const { data: user, error } = await supabase
         .from('users')
-        .select('token_quota, token_used_today, last_reset')
+        .select('token_quota, token_used_today')
         .eq('id', userId)
         .single()
 
@@ -60,18 +60,8 @@ export const tokenManager = {
         }
       }
 
-      // Check if tokens need to be reset (daily reset)
-      const today = new Date().toISOString().split('T')[0]
-      if (user.last_reset !== today) {
-        await this.resetDailyTokens(userId)
-        return {
-          hasQuota: true,
-          remaining: user.token_quota,
-          total: user.token_quota
-        }
-      }
-
-      const remaining = user.token_quota - user.token_used_today
+      // ACCUMULATIVE: No daily reset, just check against total quota
+      const remaining = Math.max(0, user.token_quota - user.token_used_today)
 
       return {
         hasQuota: remaining > 0,
@@ -139,7 +129,6 @@ export const tokenManager = {
         }
       }
 
-      const today = new Date().toISOString().split('T')[0]
       const remaining = user.token_quota - user.token_used_today
 
       return {
@@ -147,10 +136,8 @@ export const tokenManager = {
         used: user.token_used_today,
         remaining: Math.max(0, remaining),
         plan: user.plan,
-        lastReset: user.last_reset,
         name: user.name,
-        email: user.email,
-        needsReset: user.last_reset !== today
+        email: user.email
       }
     } catch (error) {
       console.error('Error getting token info:', error)
@@ -230,6 +217,54 @@ export const tokenManager = {
     } catch (error) {
       console.error('Error resetting all daily tokens:', error)
       throw new Error('Không thể reset token cho tất cả người dùng')
+    }
+  },
+
+  /**
+   * Update token usage with real OpenAI usage data
+   */
+  async updateTokenUsage(userId: string, tokensUsed: number): Promise<{ used: number; quota: number; remaining: number }> {
+    const supabase = createServerClientForAPI()
+
+    try {
+      // Get current token data
+      const { data: currentData, error: fetchError } = await supabase
+        .from('users')
+        .select('token_used_today, token_quota')
+        .eq('id', userId)
+        .single()
+
+      if (fetchError || !currentData) {
+        throw new Error('Không thể lấy thông tin token hiện tại')
+      }
+
+      // Calculate new usage (accumulative)
+      const newUsed = currentData.token_used_today + tokensUsed
+      
+      // Update with new usage
+      const { data: updateData, error: updateError } = await supabase
+        .from('users')
+        .update({
+          token_used_today: newUsed
+        })
+        .eq('id', userId)
+        .select('token_used_today, token_quota')
+        .single()
+
+      if (updateError || !updateData) {
+        throw new Error('Không thể cập nhật token usage')
+      }
+
+      console.log(`✅ Token updated: ${currentData.token_used_today} + ${tokensUsed} = ${updateData.token_used_today}`)
+
+      return {
+        used: updateData.token_used_today,
+        quota: updateData.token_quota,
+        remaining: Math.max(0, updateData.token_quota - updateData.token_used_today)
+      }
+    } catch (error) {
+      console.error('Error updating token usage:', error)
+      throw new Error('Không thể cập nhật token usage')
     }
   },
 

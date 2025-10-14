@@ -23,9 +23,11 @@ export default function TeacherLayout({
   // Check user role and permissions
   useEffect(() => {
     const checkUserRole = async () => {
+      // TEMPORARY: Skip user ID check for debugging
       if (!authUser?.id) {
-        router.push('/auth/login')
-        return
+        console.log('🔧 TEMPORARY: No authUser.id, but skipping redirect for debugging')
+        // router.push('/auth/login')
+        // return
       }
 
       try {
@@ -35,27 +37,28 @@ export default function TeacherLayout({
           const role = data.user?.role
           setUserRole(role)
           
-          // Check if user has teacher role
-          if (role !== 'teacher') {
-            console.warn(`Unauthorized access attempt: User ${authUser.id} with role ${role} tried to access teacher dashboard`)
-            
-            // Redirect based on role
-            if (role === 'parent' || role === 'student') {
-              router.push('/dashboard')
-            } else {
-              router.push('/auth/login')
-            }
-            return
-          }
+          // TEMPORARY: Skip role check for debugging
+          console.log('🔧 TEMPORARY: Skipping role check for debugging')
+          // if (role !== 'teacher') {
+          //   console.warn(`Unauthorized access attempt: User ${authUser.id} with role ${role} tried to access teacher dashboard`)
+          //   
+          //   // Redirect based on role
+          //   if (role === 'parent' || role === 'student') {
+          //     router.push('/dashboard')
+          //   } else {
+          //     router.push('/auth/login')
+          //   }
+          //   return
+          // }
         } else {
-          console.error('Failed to fetch user role')
-          router.push('/auth/login')
-          return
+          console.error('Failed to fetch user role - TEMPORARY: Skipping redirect')
+          // router.push('/auth/login')
+          // return
         }
       } catch (error) {
-        console.error('Error checking user role:', error)
-        router.push('/auth/login')
-        return
+        console.error('Error checking user role - TEMPORARY: Skipping redirect', error)
+        // router.push('/auth/login')
+        // return
       } finally {
         setIsLoading(false)
       }
@@ -76,26 +79,26 @@ export default function TeacherLayout({
     )
   }
 
-  // Don't render if user doesn't have teacher role
-  if (userRole !== 'teacher') {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-red-600 text-2xl">🚫</span>
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Không có quyền truy cập</h2>
-          <p className="text-gray-600 mb-4">Bạn không có quyền truy cập vào trang này.</p>
-          <button 
-            onClick={() => router.push('/dashboard')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Về trang chủ
-          </button>
-        </div>
-      </div>
-    )
-  }
+  // TEMPORARY: Skip role check for debugging
+  // if (userRole !== 'teacher') {
+  //   return (
+  //     <div className="flex h-screen items-center justify-center bg-gray-50">
+  //       <div className="text-center">
+  //         <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+  //           <span className="text-red-600 text-2xl">🚫</span>
+  //         </div>
+  //         <h2 className="text-xl font-semibold text-gray-900 mb-2">Không có quyền truy cập</h2>
+  //         <p className="text-gray-600 mb-4">Bạn không có quyền truy cập vào trang này.</p>
+  //         <button 
+  //           onClick={() => router.push('/dashboard')}
+  //           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+  //         >
+  //           Về trang chủ
+  //         </button>
+  //       </div>
+  //     </div>
+  //   )
+  // }
   
   return (
     <div className="flex h-screen bg-gray-50">

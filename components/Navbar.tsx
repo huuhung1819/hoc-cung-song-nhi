@@ -280,11 +280,8 @@ export function Navbar() {
         {/* Center - Questions Progress */}
         <div className="flex-1 max-w-sm mx-8">
           <TokenProgress 
-            usagePercentage={user.usagePercentage}
-            isNearLimit={user.isNearLimit}
-            isAtLimit={user.isAtLimit}
-            label="Số câu hỏi hôm nay"
-            isLoading={isLoadingUser}
+            userId={authUser?.id || ''}
+            label="Token hôm nay"
           />
         </div>
 

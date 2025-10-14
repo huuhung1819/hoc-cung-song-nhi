@@ -15,7 +15,8 @@ import {
   TrendingUp,
   AlertTriangle,
   LogOut,
-  GraduationCap
+  GraduationCap,
+  UserPlus
 } from 'lucide-react'
 
 export default function AdminLayout({
@@ -89,10 +90,21 @@ export default function AdminLayout({
     )
   }
 
-  if (!user || userRole !== 'admin') {
+  // TEMPORARY: Skip admin role check for debugging
+  console.log('🔧 TEMPORARY: Skipping admin role check for debugging')
+  console.log('User:', user?.id, 'Role:', userRole, 'Email:', user?.email)
+  
+  // Allow access for specific admin user
+  if (!user || (userRole !== 'admin' && user.email !== 'huuhung20182019@gmail.com')) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-lg text-red-500">Bạn không có quyền truy cập trang này.</div>
+        <div className="text-center">
+          <div className="text-lg text-red-500 mb-4">Bạn không có quyền truy cập trang này.</div>
+          <div className="text-sm text-gray-600">Chỉ admin mới có thể xem trang này.</div>
+          <div className="text-xs text-gray-500 mt-2">
+            Debug: User={user?.email}, Role={userRole}
+          </div>
+        </div>
       </div>
     )
   }
@@ -111,6 +123,12 @@ export default function AdminLayout({
       description: 'Quản lý tài khoản người dùng'
     },
     {
+      title: 'Tạo tài khoản GV',
+      icon: UserPlus,
+      href: '/admin/create-teacher',
+      description: 'Tạo tài khoản giáo viên mới'
+    },
+    {
       title: 'Giáo viên - Học sinh',
       icon: GraduationCap,
       href: '/admin/teacher-students',
@@ -127,6 +145,12 @@ export default function AdminLayout({
       icon: TrendingUp,
       href: '/admin/analytics',
       description: 'Báo cáo và thống kê chi tiết'
+    },
+    {
+      title: 'Token Analytics',
+      icon: Activity,
+      href: '/admin/token-analytics',
+      description: 'Theo dõi token và chi phí OpenAI'
     },
     {
       title: 'Hệ thống',
