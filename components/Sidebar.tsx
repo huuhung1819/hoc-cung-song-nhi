@@ -22,7 +22,9 @@ import {
   Key,
   Users,
   ClipboardList,
-  PenTool
+  PenTool,
+  ClipboardCheck,
+  CheckCircle
 } from 'lucide-react'
 
 // Menu items for different user roles
@@ -42,6 +44,11 @@ const getSidebarItems = (userRole: string) => {
         icon: Users
       },
       {
+        title: 'Mã mời lớp',
+        href: '/teacher/class-codes',
+        icon: Key
+      },
+      {
         title: 'Soạn giáo án',
         href: '/teacher/lesson-planner',
         icon: PenTool
@@ -55,6 +62,16 @@ const getSidebarItems = (userRole: string) => {
         title: 'Giao bài tập',
         href: '/teacher/assignments',
         icon: ClipboardList
+      },
+      {
+        title: 'Chấm bài',
+        href: '/teacher/grading',
+        icon: CheckCircle
+      },
+      {
+        title: 'Bài kiểm tra',
+        href: '/teacher/tests',
+        icon: ClipboardCheck
       },
       {
         title: 'Tiến độ',
@@ -83,8 +100,18 @@ const getSidebarItems = (userRole: string) => {
     },
     {
       title: 'Bài học',
-      href: `${basePath}/lessons`,
+      href: `${basePath}/assignments`,
       icon: BookOpen
+    },
+    {
+      title: 'Sinh bài tập',
+      href: `${basePath}/exercise-generator`,
+      icon: FileText
+    },
+    {
+      title: 'Bài kiểm tra',
+      href: `${basePath}/tests`,
+      icon: ClipboardCheck
     },
     {
       title: 'Tiến độ',
@@ -106,6 +133,7 @@ const getSidebarItems = (userRole: string) => {
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [user, setUser] = useState({
     name: 'Đang tải...',
@@ -189,12 +217,33 @@ export function Sidebar() {
   }
 
   return (
-    <div className={cn(
-      "bg-white border-r border-gray-200 transition-all duration-300",
-      isCollapsed ? "w-16" : "w-64"
-    )}>
-      {/* Header */}
-      <div className="p-4 border-b border-gray-200">
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsMobileOpen(true)}
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg border border-gray-200"
+      >
+        <Menu className="w-6 h-6 text-gray-700" />
+      </button>
+
+      {/* Overlay for mobile */}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={cn(
+        "bg-white border-r border-gray-200 transition-all duration-300",
+        "fixed md:relative inset-y-0 left-0 z-50",
+        "md:translate-x-0",
+        isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+        isCollapsed ? "w-16" : "w-64"
+      )}>
+        {/* Header */}
+        <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
             <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -206,14 +255,27 @@ export function Sidebar() {
               HỌC CÙNG SONG NHI
             </h2>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="ml-auto"
-          >
-            {isCollapsed ? <Menu className="w-4 h-4" /> : <X className="w-4 h-4" />}
-          </Button>
+          <div className="flex items-center gap-2 ml-auto">
+            {/* Close button for mobile */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMobileOpen(false)}
+              className="md:hidden"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+            
+            {/* Collapse button for desktop */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="hidden md:flex"
+            >
+              {isCollapsed ? <Menu className="w-4 h-4" /> : <X className="w-4 h-4" />}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -225,21 +287,21 @@ export function Sidebar() {
             const isActive = pathname === item.href
 
             return (
-              <li key={item.href}>
-                <Link href={item.href}>
-                  <Button
-                    variant={isActive ? "default" : "ghost"}
-                    className={cn(
-                      "w-full justify-start",
-                      isCollapsed ? "px-2" : "px-3",
-                      isActive ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100"
-                    )}
-                  >
-                    <Icon className={cn("w-4 h-4", !isCollapsed && "mr-3")} />
-                    {!isCollapsed && item.title}
-                  </Button>
-                </Link>
-              </li>
+                <li key={item.href}>
+                  <Link href={item.href} onClick={() => setIsMobileOpen(false)}>
+                    <Button
+                      variant={isActive ? "default" : "ghost"}
+                      className={cn(
+                        "w-full justify-start",
+                        isCollapsed ? "px-2" : "px-3",
+                        isActive ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100"
+                      )}
+                    >
+                      <Icon className={cn("w-4 h-4", !isCollapsed && "mr-3")} />
+                      {!isCollapsed && item.title}
+                    </Button>
+                  </Link>
+                </li>
             )
           })}
         </ul>
@@ -335,6 +397,7 @@ export function Sidebar() {
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

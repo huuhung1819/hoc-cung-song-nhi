@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useAuth } from '@/lib/authContext'
 
 interface ExerciseGeneratorProps {
   isUnlockMode: boolean
@@ -49,6 +50,11 @@ const SUBJECTS = {
 }
 
 export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: ExerciseGeneratorProps) {
+  const { user } = useAuth()
+  
+  // Use userId prop first, fallback to user?.id from useAuth
+  const effectiveUserId = userId || user?.id
+  
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null)
   const [selectedSubSubject, setSelectedSubSubject] = useState<string | null>(null)
   const [exercises, setExercises] = useState<string[]>([])
@@ -89,7 +95,7 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
         body: JSON.stringify({
           subject: selectedSubject,
           subSubject: selectedSubSubject,
-          userId: userId,
+          userId: effectiveUserId,
           count: 5
         })
       })
@@ -122,6 +128,13 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
   }
 
   const handleAskAI = (exercise: string, index: number) => {
+    // Check if userId is available
+    if (!effectiveUserId) {
+      setError('Chưa đăng nhập hoặc thông tin người dùng chưa được tải. Vui lòng thử lại.')
+      console.error('handleAskAI: effectiveUserId is undefined')
+      return
+    }
+
     // Update state
     setExerciseStates(prev => ({
       ...prev,
@@ -137,21 +150,34 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
       onSendToChat(exercise, 'coach')
     }
 
-    // Simulate AI response (in real app, listen to chat response)
+    // Reset status after timeout to prevent stuck state
     setTimeout(() => {
-      setExerciseStates(prev => ({
-        ...prev,
-        [index]: {
-          ...prev[index],
-          status: 'answered'
+      setExerciseStates(prev => {
+        const currentState = prev[index]
+        if (currentState && currentState.status === 'asking') {
+          return {
+            ...prev,
+            [index]: {
+              ...currentState,
+              status: 'answered'
+            }
+          }
         }
-      }))
-    }, 1000)
+        return prev
+      })
+    }, 10000) // 10 second timeout
   }
 
   const handleShowSolution = (index: number) => {
     const state = exerciseStates[index]
     if (!state) return
+
+    // Check if userId is available
+    if (!effectiveUserId) {
+      setError('Chưa đăng nhập hoặc thông tin người dùng chưa được tải. Vui lòng thử lại.')
+      console.error('handleShowSolution: effectiveUserId is undefined')
+      return
+    }
 
     // Use saved exercise from state
     const exercise = state.exercise
@@ -171,16 +197,22 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
       onSendToChat(exercise, 'solve')
     }
 
-    // Simulate AI response
+    // Reset status after timeout to prevent stuck state
     setTimeout(() => {
-      setExerciseStates(prev => ({
-        ...prev,
-        [index]: {
-          ...prev[index],
-          status: 'answered'
+      setExerciseStates(prev => {
+        const currentState = prev[index]
+        if (currentState && currentState.status === 'asking') {
+          return {
+            ...prev,
+            [index]: {
+              ...currentState,
+              status: 'answered'
+            }
+          }
         }
-      }))
-    }, 1000)
+        return prev
+      })
+    }, 10000) // 10 second timeout
   }
 
   return (

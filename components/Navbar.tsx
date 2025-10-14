@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { TokenProgress } from './TokenProgress'
 import { SettingsModal } from './SettingsModal'
 import { useAuth } from '@/lib/authContext'
+import { useNotifications } from '@/lib/hooks/useNotifications'
 
 export function Navbar() {
   const { user: authUser, signOut } = useAuth()
@@ -28,32 +29,15 @@ export function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: 'Bài học mới',
-      message: 'Có bài học mới "Khoa học: Thực vật xung quanh"',
-      time: '2 phút trước',
-      read: false,
-      type: 'lesson'
-    },
-    {
-      id: 2,
-      title: 'Nhắc nhở học tập',
-      message: 'Đã đến giờ học Toán rồi!',
-      time: '1 giờ trước',
-      read: false,
-      type: 'reminder'
-    },
-    {
-      id: 3,
-      title: 'Hoàn thành bài học',
-      message: 'Chúc mừng! Bạn đã hoàn thành bài "Tiếng Việt: Đọc và viết chữ cái"',
-      time: '3 giờ trước',
-      read: true,
-      type: 'achievement'
-    }
-  ])
+  // Use SSE notifications hook
+  const { 
+    notifications, 
+    unreadCount, 
+    isConnected, 
+    lastNotification,
+    markAsRead, 
+    markAllAsRead 
+  } = useNotifications(authUser?.id || null)
   const searchRef = useRef<HTMLDivElement>(null)
   const notificationsRef = useRef<HTMLDivElement>(null)
   const profileRef = useRef<HTMLDivElement>(null)
@@ -83,11 +67,28 @@ export function Navbar() {
     }
   }
 
+
   useEffect(() => {
     if (authUser) {
       loadUserInfo()
     }
   }, [authUser])
+
+  // Show toast for new notifications
+  useEffect(() => {
+    if (lastNotification) {
+      // Show browser notification if permission granted
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(lastNotification.title, {
+          body: lastNotification.message,
+          icon: '/favicon.ico'
+        })
+      }
+      
+      // Show in-app toast (you can replace with your toast library)
+      console.log('🔔 New notification:', lastNotification.title)
+    }
+  }, [lastNotification])
 
   // Listen for user info updates from other components
   useEffect(() => {
@@ -173,29 +174,22 @@ export function Navbar() {
   }, [])
 
   // Handle notification click
-  const handleNotificationClick = (notification: any) => {
-    // Mark as read
-    setNotifications(prev => 
-      prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
-    )
+  const handleNotificationClick = async (notification: any) => {
+    // Mark as read using hook
+    await markAsRead(notification.id)
     
     // Navigate based on notification type
-    if (notification.type === 'lesson') {
-      router.push('/dashboard/lessons')
-    } else if (notification.type === 'achievement') {
-      router.push('/dashboard/progress')
+    if (notification.type === 'assignment') {
+      router.push('/dashboard/assignments')
+    } else if (notification.type === 'grade') {
+      router.push('/dashboard/assignments')
+    } else {
+      router.push('/dashboard/assignments')
     }
     
     setShowNotifications(false)
   }
 
-  // Mark all notifications as read
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-  }
-
-  // Get unread count
-  const unreadCount = notifications.filter(n => !n.read).length
 
   // Handle Enter key press
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -306,9 +300,12 @@ export function Navbar() {
             >
               <Bell className="w-5 h-5" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
                   {unreadCount}
                 </span>
+              )}
+              {!isConnected && (
+                <span className="absolute -bottom-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full" title="Disconnected" />
               )}
             </Button>
 
@@ -317,7 +314,11 @@ export function Navbar() {
               <div className="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                 <div className="p-4 border-b border-gray-200">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-900">Thông báo</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-gray-900">Thông báo</h3>
+                      <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} 
+                           title={isConnected ? 'Connected' : 'Disconnected'} />
+                    </div>
                     {unreadCount > 0 && (
                       <Button
                         variant="ghost"
@@ -338,18 +339,18 @@ export function Navbar() {
                         key={notification.id}
                         onClick={() => handleNotificationClick(notification)}
                         className={`w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 ${
-                          !notification.read ? 'bg-blue-50' : ''
+                          !notification.is_read ? 'bg-blue-50' : ''
                         }`}
                       >
                         <div className="flex items-start space-x-3">
                           <div className={`w-2 h-2 rounded-full mt-2 ${
-                            notification.type === 'lesson' ? 'bg-blue-500' :
-                            notification.type === 'reminder' ? 'bg-yellow-500' :
-                            'bg-green-500'
+                            notification.type === 'assignment' ? 'bg-blue-500' :
+                            notification.type === 'grade' ? 'bg-green-500' :
+                            'bg-gray-500'
                           }`} />
                           <div className="flex-1">
                             <p className={`font-medium ${
-                              !notification.read ? 'text-gray-900' : 'text-gray-700'
+                              !notification.is_read ? 'text-gray-900' : 'text-gray-700'
                             }`}>
                               {notification.title}
                             </p>
@@ -357,10 +358,10 @@ export function Navbar() {
                               {notification.message}
                             </p>
                             <p className="text-xs text-gray-500 mt-1">
-                              {notification.time}
+                              {new Date(notification.created_at).toLocaleString('vi-VN')}
                             </p>
                           </div>
-                          {!notification.read && (
+                          {!notification.is_read && (
                             <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
                           )}
                         </div>

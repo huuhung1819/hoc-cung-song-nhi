@@ -175,7 +175,7 @@ function parseExercises(text: string, exerciseType: string, count: number): any[
     const section = sections[i].trim()
     
     if (exerciseType === 'multiple_choice') {
-      const questionMatch = section.match(/\*\*Câu \d+:\*\*\s*(.+?)(?=\n[A-D]\.)/s)
+      const questionMatch = section.match(/\*\*Câu \d+:\*\*\s*(.+?)(?=\n\n[A-D]\.)/s)
       const optionsMatch = section.match(/[A-D]\.\s*(.+?)(?=\n|$)/g)
       const answerMatch = section.match(/\*\*Đáp án:\*\*\s*([A-D])/i)
       const explanationMatch = section.match(/\*\*Giải thích:\*\*\s*(.+?)(?=---|$)/s)
@@ -223,4 +223,5 @@ function parseExercises(text: string, exerciseType: string, count: number): any[
 
   return exercises
 }
+
 

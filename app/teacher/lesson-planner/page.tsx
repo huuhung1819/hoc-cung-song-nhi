@@ -112,7 +112,7 @@ export default function LessonPlannerPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         {/* Input Form */}
         <Card>
           <CardHeader>
@@ -121,7 +121,7 @@ export default function LessonPlannerPage() {
               Điền thông tin để AI tạo giáo án phù hợp
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 md:space-y-4">
             {/* Subject */}
             <div className="space-y-2">
               <Label htmlFor="subject">Môn học *</Label>

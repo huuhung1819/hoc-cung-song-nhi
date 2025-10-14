@@ -113,6 +113,9 @@ export default function AccountPage() {
       toast.success(result.message || 'Cập nhật thông tin thành công')
       setIsEditing(false)
       
+      // Dispatch event to notify other components
+      window.dispatchEvent(new CustomEvent('profileUpdated'))
+      
     } catch (error) {
       console.error('Error saving profile:', error)
       setError(error instanceof Error ? error.message : 'Lỗi không xác định')

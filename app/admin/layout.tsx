@@ -14,7 +14,8 @@ import {
   Activity,
   TrendingUp,
   AlertTriangle,
-  LogOut
+  LogOut,
+  GraduationCap
 } from 'lucide-react'
 
 export default function AdminLayout({
@@ -108,6 +109,12 @@ export default function AdminLayout({
       icon: Users,
       href: '/admin/users',
       description: 'Quản lý tài khoản người dùng'
+    },
+    {
+      title: 'Giáo viên - Học sinh',
+      icon: GraduationCap,
+      href: '/admin/teacher-students',
+      description: 'Quản lý lớp học'
     },
     {
       title: 'Thanh toán',

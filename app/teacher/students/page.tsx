@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Input } from '@/components/ui/input'
 import { 
   Users, 
   BookOpen, 
@@ -13,75 +14,57 @@ import {
   Search,
   Filter,
   Eye,
-  MessageSquare
+  MessageSquare,
+  Loader2
 } from 'lucide-react'
+import { useAuth } from '@/lib/authContext'
 
 export default function TeacherDashboard() {
+  const { user } = useAuth()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedGrade, setSelectedGrade] = useState('all')
+  const [students, setStudents] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const students = [
-    {
-      id: 1,
-      name: 'Nguyễn Văn A',
-      avatar: '',
-      grade: 'Lớp 1',
-      lessonsCompleted: 12,
-      totalLessons: 20,
-      averageScore: 8.5,
-      studyTime: '45 phút',
-      lastActive: '2 giờ trước',
-      progress: 60
-    },
-    {
-      id: 2,
-      name: 'Trần Thị B',
-      avatar: '',
-      grade: 'Lớp 1',
-      lessonsCompleted: 18,
-      totalLessons: 20,
-      averageScore: 9.2,
-      studyTime: '1 giờ 15 phút',
-      lastActive: '30 phút trước',
-      progress: 90
-    },
-    {
-      id: 3,
-      name: 'Lê Văn C',
-      avatar: '',
-      grade: 'Lớp 2',
-      lessonsCompleted: 8,
-      totalLessons: 25,
-      averageScore: 7.8,
-      studyTime: '30 phút',
-      lastActive: '1 ngày trước',
-      progress: 32
-    },
-    {
-      id: 4,
-      name: 'Phạm Thị D',
-      avatar: '',
-      grade: 'Lớp 1',
-      lessonsCompleted: 15,
-      totalLessons: 20,
-      averageScore: 8.9,
-      studyTime: '55 phút',
-      lastActive: '3 giờ trước',
-      progress: 75
-    },
-    {
-      id: 5,
-      name: 'Hoàng Văn E',
-      avatar: '',
-      grade: 'Lớp 2',
-      lessonsCompleted: 20,
-      totalLessons: 25,
-      averageScore: 9.5,
-      studyTime: '1 giờ 30 phút',
-      lastActive: '1 giờ trước',
-      progress: 80
+  // Fetch students from API
+  useEffect(() => {
+    if (user?.id) {
+      loadStudents()
     }
-  ]
+  }, [user])
+
+  const loadStudents = async () => {
+    setIsLoading(true)
+    try {
+      // Fetch teacher's students
+      const response = await fetch(`/api/admin/teacher-students?teacherId=${user?.id}`)
+      const data = await response.json()
+
+      if (data.success) {
+        // Map relationships to student objects
+        const studentsList = data.relationships.map((rel: any) => ({
+          id: rel.student_id,
+          name: rel.student?.name || rel.student?.email || 'Unknown',
+          avatar: '',
+          email: rel.student?.email || '',
+          grade: rel.student?.grade || 'Chưa xác định',
+          // Mock additional data - can be fetched from separate API later
+          lessonsCompleted: Math.floor(Math.random() * 15 + 5),
+          totalLessons: 20,
+          averageScore: (Math.random() * 2 + 7.5).toFixed(1),
+          studyTime: `${Math.floor(Math.random() * 60 + 20)} phút`,
+          lastActive: ['30 phút trước', '1 giờ trước', '2 giờ trước', '1 ngày trước'][Math.floor(Math.random() * 4)],
+          progress: Math.floor(Math.random() * 50 + 30)
+        }))
+
+        setStudents(studentsList)
+      }
+    } catch (error) {
+      console.error('Error loading students:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const filteredStudents = students.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -94,6 +77,15 @@ export default function TeacherDashboard() {
     averageProgress: Math.round(students.reduce((acc, s) => acc + s.progress, 0) / students.length),
     totalLessonsCompleted: students.reduce((acc, s) => acc + s.lessonsCompleted, 0),
     averageScore: (students.reduce((acc, s) => acc + s.averageScore, 0) / students.length).toFixed(1)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <span className="ml-2 text-gray-600">Đang tải danh sách học sinh...</span>
+      </div>
+    )
   }
 
   return (

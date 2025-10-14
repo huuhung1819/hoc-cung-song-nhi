@@ -63,82 +63,82 @@ export default function TeacherDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Tổng số học sinh
+            <CardTitle className="text-xs md:text-sm font-medium text-gray-600">
+              Học sinh
             </CardTitle>
-            <Users className="w-4 h-4 text-blue-600" />
+            <Users className="w-3 h-3 md:w-4 md:h-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.totalStudents}</div>
-            <p className="text-xs text-gray-500 mt-1">Đang theo dõi</p>
+            <div className="text-lg md:text-2xl font-bold text-blue-600">{stats.totalStudents}</div>
+            <p className="text-xs text-gray-500 mt-1 hidden md:block">Đang theo dõi</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Bài tập đang giao
+            <CardTitle className="text-xs md:text-sm font-medium text-gray-600">
+              Bài tập
             </CardTitle>
-            <ClipboardList className="w-4 h-4 text-purple-600" />
+            <ClipboardList className="w-3 h-3 md:w-4 md:h-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{stats.activeAssignments}</div>
-            <p className="text-xs text-gray-500 mt-1">Bài tập hoạt động</p>
+            <div className="text-lg md:text-2xl font-bold text-purple-600">{stats.activeAssignments}</div>
+            <p className="text-xs text-gray-500 mt-1 hidden md:block">Đang giao</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Hoàn thành hôm nay
+            <CardTitle className="text-xs md:text-sm font-medium text-gray-600">
+              Hoàn thành
             </CardTitle>
-            <CheckCircle className="w-4 h-4 text-green-600" />
+            <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.completedToday}</div>
-            <p className="text-xs text-gray-500 mt-1">Bài tập đã nộp</p>
+            <div className="text-lg md:text-2xl font-bold text-green-600">{stats.completedToday}</div>
+            <p className="text-xs text-gray-500 mt-1 hidden md:block">Hôm nay</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Điểm trung bình
+            <CardTitle className="text-xs md:text-sm font-medium text-gray-600">
+              Điểm TB
             </CardTitle>
-            <TrendingUp className="w-4 h-4 text-orange-600" />
+            <TrendingUp className="w-3 h-3 md:w-4 md:h-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.averageScore}/10</div>
-            <p className="text-xs text-gray-500 mt-1">Của tất cả học sinh</p>
+            <div className="text-lg md:text-2xl font-bold text-orange-600">{stats.averageScore}</div>
+            <p className="text-xs text-gray-500 mt-1 hidden md:block">/10 điểm</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Giáo án đã soạn
+            <CardTitle className="text-xs md:text-sm font-medium text-gray-600">
+              Giáo án
             </CardTitle>
-            <PenTool className="w-4 h-4 text-indigo-600" />
+            <PenTool className="w-3 h-3 md:w-4 md:h-4 text-indigo-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-indigo-600">{stats.lessonPlans}</div>
-            <p className="text-xs text-gray-500 mt-1">Giáo án có sẵn</p>
+            <div className="text-lg md:text-2xl font-bold text-indigo-600">{stats.lessonPlans}</div>
+            <p className="text-xs text-gray-500 mt-1 hidden md:block">Đã soạn</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Bộ bài tập đã tạo
+            <CardTitle className="text-xs md:text-sm font-medium text-gray-600">
+              Bài tập
             </CardTitle>
-            <FileText className="w-4 h-4 text-teal-600" />
+            <FileText className="w-3 h-3 md:w-4 md:h-4 text-teal-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-teal-600">{stats.exerciseSets}</div>
-            <p className="text-xs text-gray-500 mt-1">Bài tập đã sinh</p>
+            <div className="text-lg md:text-2xl font-bold text-teal-600">{stats.exerciseSets}</div>
+            <p className="text-xs text-gray-500 mt-1 hidden md:block">Đã tạo</p>
           </CardContent>
         </Card>
       </div>
@@ -150,29 +150,29 @@ export default function TeacherDashboard() {
           <CardDescription>Các công cụ thường dùng</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3">
             <Link href="/teacher/lesson-planner">
-              <Button className="w-full h-20 bg-blue-600 hover:bg-blue-700 flex flex-col gap-2">
-                <PenTool className="w-6 h-6" />
-                <span>Soạn giáo án</span>
+              <Button className="w-full h-16 md:h-20 bg-blue-600 hover:bg-blue-700 flex flex-col gap-1 md:gap-2">
+                <PenTool className="w-4 h-4 md:w-6 md:h-6" />
+                <span className="text-xs md:text-sm">Soạn giáo án</span>
               </Button>
             </Link>
             <Link href="/teacher/exercise-generator">
-              <Button className="w-full h-20 bg-green-600 hover:bg-green-700 flex flex-col gap-2">
-                <FileText className="w-6 h-6" />
-                <span>Sinh bài tập</span>
+              <Button className="w-full h-16 md:h-20 bg-green-600 hover:bg-green-700 flex flex-col gap-1 md:gap-2">
+                <FileText className="w-4 h-4 md:w-6 md:h-6" />
+                <span className="text-xs md:text-sm">Sinh bài tập</span>
               </Button>
             </Link>
             <Link href="/teacher/assignments">
-              <Button className="w-full h-20 bg-purple-600 hover:bg-purple-700 flex flex-col gap-2">
-                <ClipboardList className="w-6 h-6" />
-                <span>Giao bài tập</span>
+              <Button className="w-full h-16 md:h-20 bg-purple-600 hover:bg-purple-700 flex flex-col gap-1 md:gap-2">
+                <ClipboardList className="w-4 h-4 md:w-6 md:h-6" />
+                <span className="text-xs md:text-sm">Giao bài tập</span>
               </Button>
             </Link>
             <Link href="/teacher/students">
-              <Button className="w-full h-20 bg-orange-600 hover:bg-orange-700 flex flex-col gap-2">
-                <Users className="w-6 h-6" />
-                <span>Quản lý học sinh</span>
+              <Button className="w-full h-16 md:h-20 bg-orange-600 hover:bg-orange-700 flex flex-col gap-1 md:gap-2">
+                <Users className="w-4 h-4 md:w-6 md:h-6" />
+                <span className="text-xs md:text-sm">Quản lý học sinh</span>
               </Button>
             </Link>
           </div>

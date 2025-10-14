@@ -182,24 +182,31 @@ export default function DashboardPage() {
 
              {/* 🆕 Exercise Generator - FULL WIDTH */}
              <ExerciseGenerator 
+               key={`exercise-gen-${authUser?.id}`}
                isUnlockMode={isUnlockMode}
                userId={authUser?.id}
                onSendToChat={(exercise, mode) => {
-          // Scroll to chat messages area smoothly
-          if (chatMessagesRef.current) {
-            chatMessagesRef.current.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'start',
-              inline: 'nearest'
-            })
+          console.log('🎯 Dashboard onSendToChat called:', { exercise: exercise.substring(0, 50) + '...', mode })
+          console.log('🎯 sendExerciseToChatRef.current:', !!sendExerciseToChatRef.current)
+          
+          // Send exercise to chat immediately
+          if (sendExerciseToChatRef.current) {
+            console.log('🎯 Calling sendExerciseToChatRef.current')
+            sendExerciseToChatRef.current(exercise, mode)
+          } else {
+            console.error('❌ sendExerciseToChatRef.current is null!')
           }
           
-          // Send exercise to chat
-          if (sendExerciseToChatRef.current) {
-            setTimeout(() => {
-              sendExerciseToChatRef.current!(exercise, mode)
-            }, 300) // Reduced delay for better UX
-          }
+          // Scroll to chat messages area smoothly
+          setTimeout(() => {
+            if (chatMessagesRef.current) {
+              chatMessagesRef.current.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start',
+                inline: 'nearest'
+              })
+            }
+          }, 100) // Small delay for scroll only
         }}
       />
 
