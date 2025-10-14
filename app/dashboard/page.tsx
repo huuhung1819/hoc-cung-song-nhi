@@ -7,6 +7,7 @@ import { TokenProgress } from '@/components/TokenProgress'
 import { LessonCard } from '@/components/LessonCard'
 import { ChatInterface } from '@/components/ChatInterface'
 import { ExerciseGenerator } from '@/components/ExerciseGenerator'
+import { PlanDisplay } from '@/components/PlanDisplay'
 import { useAuth } from '@/lib/authContext'
 
 export default function DashboardPage() {
@@ -130,10 +131,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="text-right">
-              <p className="text-sm text-gray-500">Gói học hiện tại</p>
-              <p className="font-semibold text-lg">{user.plan}</p>
-            </div>
+            <PlanDisplay plan={user.plan} />
           </div>
         </div>
         
