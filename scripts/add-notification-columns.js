@@ -110,3 +110,4 @@ async function addNotificationColumns() {
 
 // Run migration
 addNotificationColumns()
+

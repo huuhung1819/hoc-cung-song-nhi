@@ -41,3 +41,4 @@ else
     echo "4. Run: ALTER TABLE users ALTER COLUMN grade SET NOT NULL;"
     exit 1
 fi
+

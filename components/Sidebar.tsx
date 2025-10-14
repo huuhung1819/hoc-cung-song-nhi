@@ -58,7 +58,9 @@ export function Sidebar() {
     usagePercentage: 0,
     isNearLimit: false,
     isAtLimit: false,
-    plan: 'Gói Cơ Bản'
+    plan: 'Gói Cơ Bản',
+    unlocksUsed: 0,
+    unlocksQuota: 10
   })
   const [isLoadingUser, setIsLoadingUser] = useState(false)
   const pathname = usePathname()

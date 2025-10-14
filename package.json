@@ -9,7 +9,9 @@
     "build": "next build",
     "build:docker": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "gcloud run deploy hoc-cung-songnhi --source . --region asia-southeast1 --allow-unauthenticated --platform managed",
+    "deploy:quick": "./quick-deploy.sh hoc-cung-songnhi asia-southeast1"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",

@@ -29,3 +29,4 @@ else
     echo "❌ Migration failed!"
     exit 1
 fi
+

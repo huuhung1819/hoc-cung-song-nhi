@@ -68,13 +68,7 @@ export async function middleware(request: NextRequest) {
         .eq('id', user.id)
         .single()
 
-      console.log('🔍 Middleware Debug:', {
-        path: request.nextUrl.pathname,
-        userId: user.id,
-        userProfile: userProfile,
-        profileError: profileError,
-        userRole: userProfile?.role
-      })
+      // Debug logs removed for security
 
       if (!profileError && userProfile?.role) {
         currentUserRole = userProfile.role

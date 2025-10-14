@@ -284,7 +284,7 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
         {exercises.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-lg font-semibold text-gray-900">
-              📋 Bài tập {SUBJECTS[selectedSubject!].name} - {selectedSubSubject}:
+              📋 Bài tập {SUBJECTS[selectedSubject as keyof typeof SUBJECTS]?.name} - {selectedSubSubject}:
             </h3>
             {exercises.map((exercise, index) => {
               const state = exerciseStates[index] || { status: 'idle', mode: null }

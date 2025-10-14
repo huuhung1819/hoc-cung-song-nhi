@@ -96,3 +96,4 @@ async function testProfileAPI() {
 
 // Run tests
 testProfileAPI()
+
