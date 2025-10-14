@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabaseServer'
+import { withAuth, requireTeacherOrAdmin } from '@/lib/apiAuth'
 
 /**
  * API để lấy danh sách assignments của teacher
  * GET /api/teacher/assignments?teacherId={teacherId}
  */
-export async function GET(req: NextRequest) {
+export const GET = withAuth(async (req: NextRequest, auth) => {
   try {
     const { searchParams } = new URL(req.url)
     const teacherId = searchParams.get('teacherId')
@@ -16,6 +17,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(
         { error: 'Teacher ID is required' },
         { status: 400 }
+      )
+    }
+
+    // Security check: Only allow access to own data or if user is admin
+    if (auth.role === 'teacher' && teacherId !== auth.user.id) {
+      return NextResponse.json(
+        { error: 'Access denied: Can only view own assignments' },
+        { status: 403 }
       )
     }
 
@@ -120,4 +129,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     )
   }
-}
+}, requireTeacherOrAdmin)
