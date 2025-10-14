@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { TokenProgress } from '@/components/TokenProgress'
+import { PlanDisplay } from '@/components/PlanDisplay'
 import { cn } from '@/lib/utils'
 import { authClient } from '@/lib/authClient'
 import { useAuth } from '@/lib/authContext'
@@ -365,12 +366,13 @@ export function Sidebar() {
       <div className="p-4 border-t border-gray-200">
         <div className="space-y-3">
           {!isCollapsed && (
-            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-              <div className="text-xs text-gray-600 mb-2">
-                {user.name}
-                <br />
-                <span className="font-medium text-gray-800">{user.plan}</span>
-              </div>
+            <div className="space-y-3">
+              <PlanDisplay 
+                plan={user.plan} 
+                className="w-full" 
+                showUserName={true}
+                userName={user.name}
+              />
               {(user.plan === 'Gói Cơ Bản' || user.plan === 'Gói Miễn Phí') && (
                 <Button
                   size="sm"

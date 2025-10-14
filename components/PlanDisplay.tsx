@@ -5,9 +5,11 @@ import { Crown, Star, Zap } from 'lucide-react'
 interface PlanDisplayProps {
   plan: string
   className?: string
+  showUserName?: boolean
+  userName?: string
 }
 
-export function PlanDisplay({ plan, className = '' }: PlanDisplayProps) {
+export function PlanDisplay({ plan, className = '', showUserName = false, userName = '' }: PlanDisplayProps) {
   // Function to get plan styling based on plan name
   const getPlanStyle = (planName: string) => {
     const lowerPlan = planName.toLowerCase()
@@ -48,8 +50,13 @@ export function PlanDisplay({ plan, className = '' }: PlanDisplayProps) {
     <div className={`${style.container} ${style.glow} ${className}`}>
       <div className={style.content}>
         {style.icon}
-        <div className="text-right">
-          <p className="text-xs text-gray-500 mb-1">Gói học hiện tại</p>
+        <div className="text-right flex-1">
+          {showUserName && userName && (
+            <p className="text-xs text-gray-500 mb-1">{userName}</p>
+          )}
+          {!showUserName && (
+            <p className="text-xs text-gray-500 mb-1">Gói học hiện tại</p>
+          )}
           <p className={style.text}>{plan}</p>
         </div>
       </div>
