@@ -314,6 +314,17 @@ export function ChatInterface({
       if (onNewMessage) {
         onNewMessage()
       }
+
+      // Dispatch token update event for real-time refresh
+      if (data.tokensUsed && data.tokensUsed > 0) {
+        console.log(`🔄 Dispatching token update event: ${data.tokensUsed} tokens used`)
+        window.dispatchEvent(new CustomEvent('tokenUpdated', { 
+          detail: { 
+            tokensUsed: data.tokensUsed,
+            tokensRemaining: data.tokensRemaining 
+          } 
+        }))
+      }
       
       // Notify all components about user info update
       window.dispatchEvent(new CustomEvent('userInfoUpdated'))

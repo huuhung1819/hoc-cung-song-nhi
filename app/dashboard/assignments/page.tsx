@@ -113,7 +113,7 @@ export default function AssignmentsPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
             <BookOpen className="w-8 h-8 text-blue-600" />
-            Bài học
+            Bài tập cô giao
           </h1>
           <p className="text-gray-600 mt-1">
             Bài tập từ giáo viên và tiến độ học tập

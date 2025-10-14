@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [fullName, setFullName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [grade, setGrade] = useState('Lớp 1')
+  const [userRole, setUserRole] = useState('parent')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -144,6 +145,7 @@ export default function RegisterPage() {
               email: email,
               phone: phoneNumber,
               grade: grade,
+              role: userRole,
             }),
           })
           
@@ -280,6 +282,26 @@ export default function RegisterPage() {
               <p className="text-xs text-gray-500 mt-1">
                 AI sẽ tạo bài tập phù hợp với lớp học này
               </p>
+            </div>
+
+            {/* Teacher Info Box */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-blue-800">
+                    Dành cho Giáo viên
+                  </h3>
+                  <div className="mt-2 text-sm text-blue-700">
+                    <p>Nếu bạn là giáo viên và muốn sử dụng hệ thống, vui lòng liên hệ quản trị viên để được cấp tài khoản.</p>
+                    <p className="mt-1 font-medium">Email: admin@example.com</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Password */}

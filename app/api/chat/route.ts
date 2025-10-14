@@ -114,15 +114,20 @@ export async function POST(request: NextRequest) {
     const conversationHistory = await conversationManager.getConversationHistory(currentConversationId, actualUserId)
     
     // Prepare messages for AI with context
+    // Optimize system prompt to reduce tokens
+    const optimizedSystemPrompt = systemPrompt.length > 500 
+      ? systemPrompt.substring(0, 500) + '...' 
+      : systemPrompt
+    
     const messages = [
       {
         role: 'system',
-        content: systemPrompt
+        content: optimizedSystemPrompt
       }
     ]
     
-    // Add conversation history (last 10 messages to keep context manageable)
-    const recentHistory = conversationHistory.slice(-10)
+    // Add conversation history (last 3 messages to reduce token usage)
+    const recentHistory = conversationHistory.slice(-3)
     for (const msg of recentHistory) {
       if (msg.role === 'user' || msg.role === 'assistant') {
         messages.push({
@@ -151,6 +156,14 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Log token usage for monitoring
+    const totalMessagesLength = messages.reduce((total, msg) => {
+      const content = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+      return total + content.length
+    }, 0)
+    console.log(`📊 Token usage estimation: ${Math.ceil(totalMessagesLength / 4)} tokens (${totalMessagesLength} characters)`)
+    console.log(`📋 Messages count: ${messages.length} (system + ${recentHistory.length} history + 1 current)`)
+
     // Get Agent response using Agent Builder with mode-specific prompt
     let response
     if (isMeaningfulMessage || imageData) {
@@ -162,13 +175,17 @@ export async function POST(request: NextRequest) {
         throw new Error(`Agent Builder API error: ${msg}`)
       }
 
-      // Calculate character count for meaningful messages
-      const userMessageLength = message ? message.length : 0
-      const assistantResponseLength = (response.output_text || response.content || '').length
-      const totalCharacters = userMessageLength + assistantResponseLength
-      
-      // Deduct characters instead of tokens
-      await tokenManager.deductTokens(actualUserId, totalCharacters)
+      // Update token usage with REAL OpenAI usage data
+      if (response.usage && response.usage.total_tokens > 0) {
+        try {
+          const tokenUpdate = await tokenManager.updateTokenUsage(actualUserId, response.usage.total_tokens)
+          console.log(`✅ Updated token usage: ${response.usage.total_tokens} tokens for user ${actualUserId}`)
+          console.log(`📊 New token status: ${tokenUpdate.used}/${tokenUpdate.quota} (${((tokenUpdate.used/tokenUpdate.quota)*100).toFixed(1)}%)`)
+        } catch (error) {
+          console.error('Error updating token usage:', error)
+          // Continue execution even if token update fails
+        }
+      }
     } else {
       // For non-meaningful messages, return a simple response without calling AI
       response = {
@@ -181,13 +198,11 @@ export async function POST(request: NextRequest) {
     await conversationManager.saveMessage(currentConversationId, 'user', message)
     await conversationManager.saveMessage(currentConversationId, 'assistant', response.output_text || response.content)
 
-    // Log character usage only for meaningful messages
-    let charactersUsed = 0
+    // Log token usage for meaningful messages
+    let tokensUsed = 0
     if (isMeaningfulMessage || imageData) {
-      const userMessageLength = message ? message.length : 0
-      const assistantResponseLength = (response.output_text || response.content || '').length
-      charactersUsed = userMessageLength + assistantResponseLength
-      await tokenManager.logTokenUsage(actualUserId, charactersUsed, response.usage, mode, !!imageData)
+      tokensUsed = response.usage?.total_tokens || 0
+      await tokenManager.logTokenUsage(actualUserId, tokensUsed, response.usage, mode, !!imageData)
     }
 
     // Get current token info for response
@@ -200,8 +215,8 @@ export async function POST(request: NextRequest) {
       workflowId: workflowId,
       toolsUsed: response.tools_used || [],
       usage: response.usage,
-      charactersUsed: charactersUsed,
-      charactersRemaining: currentTokenInfo.remaining,
+      tokensUsed: tokensUsed,
+      tokensRemaining: currentTokenInfo.remaining,
       mode: mode,
       hasImage: !!imageData
     })
