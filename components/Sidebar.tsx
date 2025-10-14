@@ -19,36 +19,90 @@ import {
   LogOut,
   FileText,
   Clock,
-  Key
+  Key,
+  Users,
+  ClipboardList,
+  PenTool
 } from 'lucide-react'
 
-const sidebarItems = [
-  {
-    title: 'Trang chủ',
-    href: '/dashboard',
-    icon: Home
-  },
-  {
-    title: 'Bài học',
-    href: '/dashboard/lessons',
-    icon: BookOpen
-  },
-  {
-    title: 'Tiến độ',
-    href: '/dashboard/progress',
-    icon: TrendingUp
-  },
-  {
-    title: 'Tài khoản',
-    href: '/dashboard/account',
-    icon: User
-  },
-  {
-    title: 'Hỗ trợ',
-    href: '/dashboard/support',
-    icon: HelpCircle
+// Menu items for different user roles
+const getSidebarItems = (userRole: string) => {
+  const basePath = userRole === 'teacher' ? '/teacher' : '/dashboard'
+  
+  if (userRole === 'teacher') {
+    return [
+      {
+        title: 'Trang chủ',
+        href: '/teacher',
+        icon: Home
+      },
+      {
+        title: 'Quản lý học sinh',
+        href: '/teacher/students',
+        icon: Users
+      },
+      {
+        title: 'Soạn giáo án',
+        href: '/teacher/lesson-planner',
+        icon: PenTool
+      },
+      {
+        title: 'Sinh bài tập',
+        href: '/teacher/exercise-generator',
+        icon: FileText
+      },
+      {
+        title: 'Giao bài tập',
+        href: '/teacher/assignments',
+        icon: ClipboardList
+      },
+      {
+        title: 'Tiến độ',
+        href: '/teacher/progress',
+        icon: TrendingUp
+      },
+      {
+        title: 'Tài khoản',
+        href: '/teacher/account',
+        icon: User
+      },
+      {
+        title: 'Hỗ trợ',
+        href: '/teacher/support',
+        icon: HelpCircle
+      }
+    ]
   }
-]
+  
+  // Parent/Student menu
+  return [
+    {
+      title: 'Trang chủ',
+      href: basePath,
+      icon: Home
+    },
+    {
+      title: 'Bài học',
+      href: `${basePath}/lessons`,
+      icon: BookOpen
+    },
+    {
+      title: 'Tiến độ',
+      href: `${basePath}/progress`,
+      icon: TrendingUp
+    },
+    {
+      title: 'Tài khoản',
+      href: `${basePath}/account`,
+      icon: User
+    },
+    {
+      title: 'Hỗ trợ',
+      href: `${basePath}/support`,
+      icon: HelpCircle
+    }
+  ]
+}
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -60,7 +114,8 @@ export function Sidebar() {
     isAtLimit: false,
     plan: 'Gói Cơ Bản',
     unlocksUsed: 0,
-    unlocksQuota: 10
+    unlocksQuota: 10,
+    role: 'parent' // Default role
   })
   const [isLoadingUser, setIsLoadingUser] = useState(false)
   const pathname = usePathname()
@@ -165,7 +220,7 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
-          {sidebarItems.map((item) => {
+          {getSidebarItems(user.role).map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
 

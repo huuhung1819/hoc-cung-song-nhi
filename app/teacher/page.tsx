@@ -1,291 +1,237 @@
 'use client'
 
-import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { 
   Users, 
-  BookOpen, 
-  TrendingUp, 
-  Clock,
-  Search,
-  Filter,
-  Eye,
-  MessageSquare
+  FileText, 
+  ClipboardList,
+  PenTool,
+  TrendingUp,
+  BookOpen,
+  CheckCircle,
+  Clock
 } from 'lucide-react'
+import Link from 'next/link'
 
 export default function TeacherDashboard() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedGrade, setSelectedGrade] = useState('all')
+  // Mock stats
+  const stats = {
+    totalStudents: 45,
+    activeAssignments: 8,
+    completedToday: 23,
+    averageScore: 8.5,
+    lessonPlans: 12,
+    exerciseSets: 28
+  }
 
-  const students = [
+  const recentActivities = [
     {
       id: 1,
-      name: 'Nguyễn Văn A',
-      avatar: '',
-      grade: 'Lớp 1',
-      lessonsCompleted: 12,
-      totalLessons: 20,
-      averageScore: 8.5,
-      studyTime: '45 phút',
-      lastActive: '2 giờ trước',
-      progress: 60
+      type: 'assignment',
+      title: 'Bài tập Toán - Phép nhân',
+      time: '10 phút trước',
+      status: 'completed',
+      student: 'Nguyễn Văn A'
     },
     {
       id: 2,
-      name: 'Trần Thị B',
-      avatar: '',
-      grade: 'Lớp 1',
-      lessonsCompleted: 18,
-      totalLessons: 20,
-      averageScore: 9.2,
-      studyTime: '1 giờ 15 phút',
-      lastActive: '30 phút trước',
-      progress: 90
+      type: 'lesson',
+      title: 'Giáo án Ngữ văn - Tả cảnh',
+      time: '1 giờ trước',
+      status: 'created'
     },
     {
       id: 3,
-      name: 'Lê Văn C',
-      avatar: '',
-      grade: 'Lớp 2',
-      lessonsCompleted: 8,
-      totalLessons: 25,
-      averageScore: 7.8,
-      studyTime: '30 phút',
-      lastActive: '1 ngày trước',
-      progress: 32
-    },
-    {
-      id: 4,
-      name: 'Phạm Thị D',
-      avatar: '',
-      grade: 'Lớp 1',
-      lessonsCompleted: 15,
-      totalLessons: 20,
-      averageScore: 8.9,
-      studyTime: '55 phút',
-      lastActive: '3 giờ trước',
-      progress: 75
-    },
-    {
-      id: 5,
-      name: 'Hoàng Văn E',
-      avatar: '',
-      grade: 'Lớp 2',
-      lessonsCompleted: 20,
-      totalLessons: 25,
-      averageScore: 9.5,
-      studyTime: '1 giờ 30 phút',
-      lastActive: '1 giờ trước',
-      progress: 80
+      type: 'exercise',
+      title: 'Bài tập Tiếng Anh - Present Simple',
+      time: '2 giờ trước',
+      status: 'generated'
     }
   ]
-
-  const filteredStudents = students.filter(student => {
-    const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesGrade = selectedGrade === 'all' || student.grade === selectedGrade
-    return matchesSearch && matchesGrade
-  })
-
-  const stats = {
-    totalStudents: students.length,
-    averageProgress: Math.round(students.reduce((acc, s) => acc + s.progress, 0) / students.length),
-    totalLessonsCompleted: students.reduce((acc, s) => acc + s.lessonsCompleted, 0),
-    averageScore: (students.reduce((acc, s) => acc + s.averageScore, 0) / students.length).toFixed(1)
-  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Quản lý học sinh</h1>
-          <p className="text-gray-600 mt-1">
-            Theo dõi tiến độ học tập của các học sinh
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <MessageSquare className="w-4 h-4 mr-2" />
-            Gửi thông báo
-          </Button>
-          <Button>
-            <Users className="w-4 h-4 mr-2" />
-            Thêm học sinh
-          </Button>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">
+          👋 Chào mừng, Giáo viên!
+        </h1>
+        <p className="text-gray-600 mt-1">
+          Quản lý lớp học và hỗ trợ học sinh hiệu quả với AI
+        </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tổng học sinh</CardTitle>
-            <Users className="h-4 w-4 text-blue-600" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Tổng số học sinh
+            </CardTitle>
+            <Users className="w-4 h-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalStudents}</div>
-            <p className="text-xs text-blue-600 mt-1">
-              +2 so với tháng trước
-            </p>
+            <div className="text-2xl font-bold text-blue-600">{stats.totalStudents}</div>
+            <p className="text-xs text-gray-500 mt-1">Đang theo dõi</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tiến độ trung bình</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-600" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Bài tập đang giao
+            </CardTitle>
+            <ClipboardList className="w-4 h-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.averageProgress}%</div>
-            <Progress value={stats.averageProgress} className="mt-2" />
+            <div className="text-2xl font-bold text-purple-600">{stats.activeAssignments}</div>
+            <p className="text-xs text-gray-500 mt-1">Bài tập hoạt động</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Bài học hoàn thành</CardTitle>
-            <BookOpen className="h-4 w-4 text-purple-600" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Hoàn thành hôm nay
+            </CardTitle>
+            <CheckCircle className="w-4 h-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalLessonsCompleted}</div>
-            <p className="text-xs text-green-600 mt-1">
-              +15 so với tuần trước
-            </p>
+            <div className="text-2xl font-bold text-green-600">{stats.completedToday}</div>
+            <p className="text-xs text-gray-500 mt-1">Bài tập đã nộp</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Điểm trung bình</CardTitle>
-            <TrendingUp className="h-4 w-4 text-yellow-600" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Điểm trung bình
+            </CardTitle>
+            <TrendingUp className="w-4 h-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.averageScore}</div>
-            <p className="text-xs text-green-600 mt-1">
-              +0.3 so với tháng trước
-            </p>
+            <div className="text-2xl font-bold text-orange-600">{stats.averageScore}/10</div>
+            <p className="text-xs text-gray-500 mt-1">Của tất cả học sinh</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Giáo án đã soạn
+            </CardTitle>
+            <PenTool className="w-4 h-4 text-indigo-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-indigo-600">{stats.lessonPlans}</div>
+            <p className="text-xs text-gray-500 mt-1">Giáo án có sẵn</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Bộ bài tập đã tạo
+            </CardTitle>
+            <FileText className="w-4 h-4 text-teal-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-teal-600">{stats.exerciseSets}</div>
+            <p className="text-xs text-gray-500 mt-1">Bài tập đã sinh</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters */}
+      {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Tìm kiếm và lọc</CardTitle>
+          <CardTitle>Thao tác nhanh</CardTitle>
+          <CardDescription>Các công cụ thường dùng</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm học sinh..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            
-            <div className="flex gap-2">
-              <select
-                value={selectedGrade}
-                onChange={(e) => setSelectedGrade(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">Tất cả lớp</option>
-                <option value="Lớp 1">Lớp 1</option>
-                <option value="Lớp 2">Lớp 2</option>
-                <option value="Lớp 3">Lớp 3</option>
-                <option value="Lớp 4">Lớp 4</option>
-                <option value="Lớp 5">Lớp 5</option>
-              </select>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <Link href="/teacher/lesson-planner">
+              <Button className="w-full h-20 bg-blue-600 hover:bg-blue-700 flex flex-col gap-2">
+                <PenTool className="w-6 h-6" />
+                <span>Soạn giáo án</span>
+              </Button>
+            </Link>
+            <Link href="/teacher/exercise-generator">
+              <Button className="w-full h-20 bg-green-600 hover:bg-green-700 flex flex-col gap-2">
+                <FileText className="w-6 h-6" />
+                <span>Sinh bài tập</span>
+              </Button>
+            </Link>
+            <Link href="/teacher/assignments">
+              <Button className="w-full h-20 bg-purple-600 hover:bg-purple-700 flex flex-col gap-2">
+                <ClipboardList className="w-6 h-6" />
+                <span>Giao bài tập</span>
+              </Button>
+            </Link>
+            <Link href="/teacher/students">
+              <Button className="w-full h-20 bg-orange-600 hover:bg-orange-700 flex flex-col gap-2">
+                <Users className="w-6 h-6" />
+                <span>Quản lý học sinh</span>
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
 
-      {/* Students List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredStudents.map((student) => (
-          <Card key={student.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-center space-x-3">
-                <Avatar>
-                  <AvatarImage src={student.avatar} />
-                  <AvatarFallback>
-                    {student.name.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <CardTitle className="text-lg">{student.name}</CardTitle>
-                  <CardDescription>{student.grade}</CardDescription>
+      {/* Recent Activities */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Hoạt động gần đây</CardTitle>
+          <CardDescription>Các thao tác và cập nhật mới nhất</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {recentActivities.map((activity) => (
+              <div
+                key={activity.id}
+                className="flex items-start gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  activity.type === 'assignment' ? 'bg-purple-100' :
+                  activity.type === 'lesson' ? 'bg-blue-100' : 'bg-green-100'
+                }`}>
+                  {activity.type === 'assignment' && <ClipboardList className="w-5 h-5 text-purple-600" />}
+                  {activity.type === 'lesson' && <PenTool className="w-5 h-5 text-blue-600" />}
+                  {activity.type === 'exercise' && <FileText className="w-5 h-5 text-green-600" />}
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Progress */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Tiến độ học tập</span>
-                  <span className="text-sm text-gray-600">{student.progress}%</span>
-                </div>
-                <Progress value={student.progress} className="h-2" />
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <div className="text-gray-500">Bài học</div>
-                  <div className="font-medium">{student.lessonsCompleted}/{student.totalLessons}</div>
+                <div className="flex-1">
+                  <p className="font-medium text-gray-900">{activity.title}</p>
+                  {activity.student && (
+                    <p className="text-sm text-gray-600">Học sinh: {activity.student}</p>
+                  )}
+                  <div className="flex items-center gap-2 mt-1">
+                    <Clock className="w-3 h-3 text-gray-400" />
+                    <span className="text-xs text-gray-500">{activity.time}</span>
+                  </div>
                 </div>
                 <div>
-                  <div className="text-gray-500">Điểm TB</div>
-                  <div className="font-medium">{student.averageScore}/10</div>
+                  {activity.status === 'completed' && (
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                      Hoàn thành
+                    </span>
+                  )}
+                  {activity.status === 'created' && (
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                      Đã tạo
+                    </span>
+                  )}
+                  {activity.status === 'generated' && (
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                      Đã sinh
+                    </span>
+                  )}
                 </div>
               </div>
-
-              <div className="text-sm text-gray-500">
-                <div className="flex items-center gap-1 mb-1">
-                  <Clock className="w-3 h-3" />
-                  Thời gian học: {student.studyTime}
-                </div>
-                <div>Hoạt động cuối: {student.lastActive}</div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1">
-                  <Eye className="w-4 h-4 mr-1" />
-                  Xem chi tiết
-                </Button>
-                <Button variant="outline" size="sm" className="flex-1">
-                  <MessageSquare className="w-4 h-4 mr-1" />
-                  Nhắn tin
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {filteredStudents.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-12">
-            <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Không tìm thấy học sinh nào
-            </h3>
-            <p className="text-gray-600">
-              Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
-            </p>
-          </CardContent>
-        </Card>
-      )}
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

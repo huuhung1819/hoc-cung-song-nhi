@@ -140,8 +140,11 @@ function LoginForm() {
           if (userInfo.success && userInfo.user?.role === 'admin') {
             console.log('✅ Admin detected! Redirecting to /admin')
             window.location.href = '/admin' // Use hard redirect instead of router.push
+          } else if (userInfo.success && userInfo.user?.role === 'teacher') {
+            console.log('👨‍🏫 Teacher detected! Redirecting to /teacher')
+            window.location.href = '/teacher' // Use hard redirect instead of router.push
           } else {
-            console.log('📌 Parent/Teacher detected! Redirecting to /dashboard')
+            console.log('👨‍👩‍👧‍👦 Parent detected! Redirecting to /dashboard')
             router.push('/dashboard')
           }
         } catch (error) {
