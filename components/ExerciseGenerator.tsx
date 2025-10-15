@@ -467,7 +467,7 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[80vh] overflow-hidden">
             {/* Header */}
-            <div className="p-4 border-b border-gray-200 bg-blue-600">
+            <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-purple-500 to-pink-500">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                   <span className="text-2xl">{getSubjectsForGrade()[popupSubject as keyof ReturnType<typeof getSubjectsForGrade>]?.icon}</span>
@@ -475,7 +475,7 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
                 </h3>
                 <button
                   onClick={handleClosePopup}
-                  className="text-white hover:text-gray-200 transition-colors text-xl bg-blue-700 hover:bg-blue-800 rounded-full w-8 h-8 flex items-center justify-center"
+                  className="text-white hover:text-gray-200 transition-colors text-xl bg-purple-600 hover:bg-purple-700 rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:shadow-lg"
                 >
                   ✕
                 </button>
@@ -505,7 +505,7 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
                   <button
                     key={topic}
                     onClick={() => handleTopicClickInPopup(topic)}
-                    className="p-3 text-left border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors bg-white"
+                    className="p-3 text-left border-2 border-gray-300 rounded-lg hover:border-purple-500 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                   >
                     <span className="font-medium text-gray-900">{topic}</span>
                   </button>
@@ -524,7 +524,7 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
             <div className="p-4 border-t border-gray-200 bg-gray-50">
               <button
                 onClick={handleClosePopup}
-                className="w-full py-2 px-4 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                className="w-full py-2 px-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all duration-200 font-medium shadow-md hover:shadow-lg"
               >
                 Đóng
               </button>
@@ -533,25 +533,28 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
         </div>
       )}
 
-      <Card className="border-2 border-blue-200 bg-blue-50">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>📝 Tạo bài tập theo môn học</span>
+      <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+      <CardHeader className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-t-xl">
+        <CardTitle className="flex items-center justify-between text-xl font-bold text-gray-800">
+          <span className="flex items-center gap-2">
+            <span className="text-2xl">📚</span>
+            Tạo bài tập theo môn học
+          </span>
           <div className="flex items-center space-x-2">
-            <span className={`text-xs px-2 py-1 rounded-full ${
+            <span className={`text-xs px-3 py-1 rounded-full font-medium border ${
               isUnlockMode 
-                ? 'bg-green-100 text-green-800' 
-                : 'bg-yellow-100 text-yellow-800'
+                ? 'bg-green-100 text-green-800 border-green-200' 
+                : 'bg-yellow-100 text-yellow-800 border-yellow-200'
             }`}>
               {isUnlockMode ? '✅ Có lời giải' : '💡 Chỉ hướng dẫn'}
             </span>
           </div>
         </CardTitle>
         <div className="mt-2">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border border-purple-200">
             🎓 {userGrade}
           </span>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-gray-700 mt-1 font-medium">
             AI sẽ tạo bài tập phù hợp với chương trình {userGrade}
           </p>
         </div>
@@ -559,16 +562,16 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
       <CardContent className="space-y-4">
         {/* Subject Selection */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">📚 Chọn môn học:</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">📚 Chọn môn học:</h3>
           <div className="grid grid-cols-3 gap-4">
             {Object.entries(getSubjectsForGrade()).map(([key, subject]) => (
               <button
                 key={key}
                 onClick={() => handleSubjectClick(key)}
-                className={`p-4 border-2 rounded-lg hover:bg-gray-50 transition-colors ${
+                className={`p-4 border-2 rounded-xl hover:shadow-lg transition-all duration-200 ${
                   selectedSubject === key 
-                    ? 'border-blue-500 bg-blue-50' 
-                    : 'border-gray-300'
+                    ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-md' 
+                    : 'border-gray-300 hover:border-purple-300 bg-white'
                 }`}
               >
                 <div className="text-3xl mb-2">{subject.icon}</div>
@@ -580,12 +583,12 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
 
         {/* Selected Subject and Topic Display */}
         {selectedSubject && selectedSubSubject && (
-          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+          <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl shadow-sm">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
               <span className="text-2xl">{getSubjectsForGrade()[selectedSubject as keyof ReturnType<typeof getSubjectsForGrade>]?.icon}</span>
               Đã chọn: {getSubjectsForGrade()[selectedSubject as keyof ReturnType<typeof getSubjectsForGrade>]?.name} {userGrade} - {selectedSubSubject}
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-700 font-medium">
               Bấm "AI tạo 5 bài tập" để bắt đầu tạo bài tập
             </p>
           </div>
@@ -597,7 +600,7 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
             <Button
               onClick={handleGenerateExercises}
               disabled={isGenerating}
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-2"
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 font-semibold"
             >
               {isGenerating ? (
                 <>
@@ -613,7 +616,7 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
 
         {/* Error Message */}
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+          <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm font-medium">
             ⚠️ {error}
           </div>
         )}
@@ -621,17 +624,17 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
         {/* Exercises Display */}
         {exercises.length > 0 && (
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-800">
               📋 Bài tập {getSubjectsForGrade()[selectedSubject as keyof ReturnType<typeof getSubjectsForGrade>]?.name} {userGrade} - {selectedSubSubject}:
             </h3>
             {exercises.map((exercise, index) => {
               const state = exerciseStates[index] || { status: 'idle', mode: null }
               
               return (
-                <div key={index} className="bg-white p-4 rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors">
+                <div key={index} className="bg-white p-4 rounded-xl border-2 border-gray-200 hover:border-purple-300 transition-all duration-200 shadow-sm hover:shadow-md">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">
+                      <span className="text-sm font-bold text-purple-600 bg-gradient-to-r from-purple-100 to-pink-100 px-3 py-1 rounded-full border border-purple-200">
                         Bài {index + 1}
                       </span>
                       {state.status === 'asking' && (
@@ -677,7 +680,7 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
                       disabled={state.status === 'asking'}
                       variant="outline"
                       size="sm"
-                      className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-50"
+                      className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200"
                     >
                       {state.status === 'asking' && state.mode === 'coach' ? (
                         <>⏳ Đang hỏi...</>
@@ -693,10 +696,10 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
                       disabled={!isUnlockMode || state.status === 'asking'}
                       variant="default"
                       size="sm"
-                      className={`flex-1 ${
+                      className={`flex-1 rounded-lg font-medium ${
                         isUnlockMode 
-                          ? 'bg-green-600 hover:bg-green-700' 
-                          : 'bg-gray-400 cursor-not-allowed'
+                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-md hover:shadow-lg transition-all duration-200' 
+                          : 'bg-gray-400 cursor-not-allowed text-white'
                       }`}
                     >
                       {!isUnlockMode ? (

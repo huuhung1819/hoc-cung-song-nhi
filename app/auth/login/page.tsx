@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabaseClient'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, BookOpen, Star, ArrowLeft } from 'lucide-react'
 
 function LoginForm() {
   const [emailOrPhone, setEmailOrPhone] = useState('')
@@ -161,112 +161,194 @@ function LoginForm() {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center p-4 sm:p-6">
-          <div className="flex items-center justify-center mb-3 sm:mb-4">
-            <img
-              src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=48&h=48&fit=crop&crop=face&auto=format"
-              alt="2 bé hoạt hình"
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
-            />
-          </div>
-          <CardTitle className="text-xl sm:text-2xl font-bold">HỌC CÙNG SONG NHI</CardTitle>
-          <CardDescription className="text-sm sm:text-base">
-            Đăng nhập vào hệ thống
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 sm:p-6">
-          <form onSubmit={handleLogin} className="space-y-4">
-            {success && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4">
-                <p className="text-green-600 text-xs sm:text-sm text-center">{success}</p>
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="emailOrPhone">Email hoặc Số điện thoại</Label>
-              <Input
-                id="emailOrPhone"
-                type="text"
-                value={emailOrPhone}
-                onChange={(e) => setEmailOrPhone(e.target.value)}
-                placeholder="Nhập email hoặc số điện thoại"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Mật khẩu</Label>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+      {/* Header với nút quay lại */}
+      <div className="p-4">
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-sm font-medium">Quay lại trang chủ</span>
+        </Link>
+      </div>
+
+      <div className="flex items-center justify-center min-h-[calc(100vh-80px)] p-4">
+        <div className="w-full max-w-md">
+          {/* Logo và tiêu đề */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-4 mb-6">
               <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Nhập mật khẩu"
-                  required
-                  className="pr-12"
+                <img
+                  src="/images/song-nhi-girls.jpg"
+                  alt="Hai bé gái Song Nhi"
+                  className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover object-center shadow-lg border-4 border-white"
                 />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                  )}
-                </button>
+                <div className="absolute -top-2 -right-2 w-6 h-6 md:w-8 md:h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <BookOpen className="w-3 h-3 md:w-5 md:h-5 text-white" />
+                </div>
+              </div>
+              <div className="text-left">
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  HỌC CÙNG SONG NHI
+                </h1>
+                <p className="text-sm md:text-base text-gray-600 font-medium">
+                  Đăng nhập vào hệ thống
+                </p>
               </div>
             </div>
-
-            {/* Remember Me & Forgot Password */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="remember"
-                  checked={rememberMe}
-                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                />
-                <Label htmlFor="remember" className="text-xs sm:text-sm font-normal">
-                  Ghi nhớ đăng nhập
-                </Label>
-              </div>
-              <Link href="/auth/forgot-password" className="text-xs sm:text-sm font-medium text-indigo-600 hover:text-indigo-500 text-center sm:text-right">
-                Quên mật khẩu?
-              </Link>
-            </div>
-
-            {/* Simple CAPTCHA */}
-            <div className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg border">
-              <Checkbox
-                id="captcha"
-                checked={captchaChecked}
-                onCheckedChange={(checked) => setCaptchaChecked(checked as boolean)}
-              />
-              <Label htmlFor="captcha" className="text-xs sm:text-sm font-normal">
-                Tôi không phải robot
-              </Label>
-            </div>
-
-            {error && (
-              <div className="text-red-500 text-xs sm:text-sm">{error}</div>
-            )}
-            <Button type="submit" className="w-full text-sm sm:text-base" disabled={loading || !captchaChecked}>
-              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-            </Button>
-          </form>
-
-          <div className="mt-4 sm:mt-6 text-center">
-            <p className="text-xs sm:text-sm text-gray-600">
-              Chưa có tài khoản?{' '}
-              <Link href="/auth/register" className="text-blue-600 hover:underline">
-                Đăng ký ngay
-              </Link>
-            </p>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Form đăng nhập */}
+          <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-6 md:p-8">
+              <form onSubmit={handleLogin} className="space-y-6">
+                {success && (
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                    <p className="text-green-600 text-sm text-center font-medium">{success}</p>
+                  </div>
+                )}
+
+                {/* Email/Phone Input */}
+                <div className="space-y-2">
+                  <Label htmlFor="emailOrPhone" className="text-sm font-semibold text-gray-700">
+                    Email hoặc Số điện thoại
+                  </Label>
+                  <Input
+                    id="emailOrPhone"
+                    type="text"
+                    value={emailOrPhone}
+                    onChange={(e) => setEmailOrPhone(e.target.value)}
+                    placeholder="Nhập email hoặc số điện thoại"
+                    required
+                    className="h-12 rounded-xl border-gray-200 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200"
+                  />
+                </div>
+
+                {/* Password Input */}
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
+                    Mật khẩu
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Nhập mật khẩu"
+                      required
+                      className="h-12 rounded-xl border-gray-200 focus:border-purple-500 focus:ring-purple-500/20 pr-12 transition-all duration-200"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center hover:bg-gray-50 rounded-r-xl transition-colors"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Remember Me & Forgot Password */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="remember"
+                      checked={rememberMe}
+                      onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                      className="border-gray-300 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500"
+                    />
+                    <Label htmlFor="remember" className="text-sm font-normal text-gray-600">
+                      Ghi nhớ đăng nhập
+                    </Label>
+                  </div>
+                  <Link 
+                    href="/auth/forgot-password" 
+                    className="text-sm font-medium text-purple-600 hover:text-purple-500 transition-colors text-center sm:text-right"
+                  >
+                    Quên mật khẩu?
+                  </Link>
+                </div>
+
+                {/* CAPTCHA */}
+                <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+                  <Checkbox
+                    id="captcha"
+                    checked={captchaChecked}
+                    onCheckedChange={(checked) => setCaptchaChecked(checked as boolean)}
+                    className="border-gray-300 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500"
+                  />
+                  <Label htmlFor="captcha" className="text-sm font-normal text-gray-600">
+                    Tôi không phải robot
+                  </Label>
+                </div>
+
+                {/* Error Message */}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                    <p className="text-red-600 text-sm text-center font-medium">{error}</p>
+                  </div>
+                )}
+
+                {/* Login Button */}
+                <Button 
+                  type="submit" 
+                  className="w-full h-12 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" 
+                  disabled={loading || !captchaChecked}
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Đang đăng nhập...
+                    </div>
+                  ) : (
+                    'Đăng nhập'
+                  )}
+                </Button>
+              </form>
+
+              {/* Register Link */}
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600">
+                  Chưa có tài khoản?{' '}
+                  <Link 
+                    href="/auth/register" 
+                    className="font-semibold text-purple-600 hover:text-purple-500 transition-colors"
+                  >
+                    Đăng ký ngay
+                  </Link>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Features highlight */}
+          <div className="mt-8 grid grid-cols-3 gap-4">
+            <div className="text-center group">
+              <div className="w-12 h-12 mx-auto mb-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <BookOpen className="w-6 h-6 text-white" />
+              </div>
+              <p className="text-xs text-gray-600 font-medium">AI Thông Minh</p>
+            </div>
+            
+            <div className="text-center group">
+              <div className="w-12 h-12 mx-auto mb-2 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Star className="w-6 h-6 text-white" />
+              </div>
+              <p className="text-xs text-gray-600 font-medium">Học Tập Cá Nhân</p>
+            </div>
+            
+            <div className="text-center group">
+              <div className="w-12 h-12 mx-auto mb-2 bg-gradient-to-r from-pink-500 to-red-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Star className="w-6 h-6 text-white" />
+              </div>
+              <p className="text-xs text-gray-600 font-medium">Con thông minh hơn</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -274,10 +356,10 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Đang tải...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Đang tải...</p>
         </div>
       </div>
     }>

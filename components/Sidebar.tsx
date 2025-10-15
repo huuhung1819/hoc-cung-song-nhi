@@ -240,7 +240,7 @@ export function Sidebar() {
         <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
-            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-2">
               <img 
                 src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=32&h=32&fit=crop&crop=face&auto=format" 
                 alt="2 bé hoạt hình" 
@@ -288,7 +288,7 @@ export function Sidebar() {
                       className={cn(
                         "w-full justify-start",
                         isCollapsed ? "px-2" : "px-3",
-                        isActive ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100"
+                        isActive ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-md" : "text-gray-700 hover:bg-gray-100"
                       )}
                     >
                       <Icon className={cn("w-4 h-4", !isCollapsed && "mr-3")} />

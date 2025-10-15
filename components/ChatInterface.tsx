@@ -362,7 +362,11 @@ export function ChatInterface({
               variant={currentMode === 'coach' ? 'default' : 'outline'}
               size="sm"
               onClick={() => handleModeChange('coach')}
-              className="flex-1"
+              className={`flex-1 ${
+                currentMode === 'coach' 
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-md' 
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
             >
               <Lightbulb className="w-4 h-4 mr-2" />
               Chỉ hướng dẫn
@@ -372,7 +376,11 @@ export function ChatInterface({
               size="sm"
               onClick={() => handleModeChange('solve')}
               disabled={!isUnlockMode}
-              className="flex-1"
+              className={`flex-1 ${
+                currentMode === 'solve' 
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-md' 
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
             >
               <CheckCircle className="w-4 h-4 mr-2" />
               Có lời giải

@@ -107,24 +107,24 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-lg p-6 border border-purple-100">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
               Chào mừng, {user.name}! 👋
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-700 mt-1 font-medium">
               AI gia sư sẵn sàng hỗ trợ con học tập hôm nay!
             </p>
             <div className="flex items-center space-x-2 mt-2">
-              <span className={`text-xs px-2 py-1 rounded-full ${
+              <span className={`text-xs px-3 py-1 rounded-full font-medium ${
                 isUnlockMode 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-gray-100 text-gray-800'
+                  ? 'bg-green-100 text-green-800 border border-green-200' 
+                  : 'bg-gray-100 text-gray-800 border border-gray-200'
               }`}>
                 {isUnlockMode ? '🔓 Đã mở khóa' : '🔒 Đã đóng khóa'}
               </span>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-600 font-medium">
                 {isUnlockMode ? 'Con có thể xem lời giải' : 'Con chỉ xem hướng dẫn'}
               </span>
             </div>
@@ -137,14 +137,17 @@ export default function DashboardPage() {
       </div>
 
       {/* 🆕 AI Chat Interface - FULL WIDTH */}
-      <Card ref={chatRef}>
-        <CardHeader>
-          <CardTitle>AI Gia sư hỗ trợ 🤖</CardTitle>
-          <CardDescription>
+      <Card ref={chatRef} className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-t-xl">
+          <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <span className="text-2xl">📚</span>
+            AI Gia sư hỗ trợ
+          </CardTitle>
+          <CardDescription className="text-gray-600 font-medium">
             Gửi bài tập khó, AI sẽ hướng dẫn con học hiệu quả
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           <ChatInterface 
             userId={authUser?.id}
             isUnlockMode={isUnlockMode}
