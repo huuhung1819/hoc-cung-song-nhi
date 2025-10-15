@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const supabase = createServerClientForAPI()
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('name, email, plan, role')
+      .select('name, email, plan, role, grade')
       .eq('id', userId)
       .single()
 
@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
         email: userData?.email || '',
         plan: displayPlan,
         role: userData?.role || 'parent',
+        grade: userData?.grade || 'Lớp 1', // Mặc định Lớp 1 nếu chưa có
         usagePercentage: usagePercentage,
         isNearLimit: isNearLimit,
         isAtLimit: isAtLimit,

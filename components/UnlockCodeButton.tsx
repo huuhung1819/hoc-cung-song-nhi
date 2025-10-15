@@ -60,19 +60,12 @@ export function UnlockCodeButton() {
     }
   }, [])
 
-  // Click outside to close
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
-        setShowPopup(false)
-      }
+  // Handle backdrop click to close
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      setShowPopup(false)
     }
-
-    if (showPopup) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [showPopup])
+  }
 
   const handleUnlock = () => {
     setErrorMessage('')
@@ -164,17 +157,27 @@ export function UnlockCodeButton() {
 
       {/* Popup */}
       {showPopup && (
-        <div
-          ref={popupRef}
-          className="absolute top-full right-0 mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-[600px] overflow-y-auto"
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={handleBackdropClick}
         >
-          {/* Header */}
-          <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
-            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-              <Key className="w-5 h-5 text-blue-600" />
-              Quản lý mã mở khóa xem lời giải
-            </h3>
-          </div>
+          <div
+            ref={popupRef}
+            className="bg-white border border-gray-200 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+          >
+            {/* Header */}
+            <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50 flex items-center justify-between">
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                <Key className="w-5 h-5 text-blue-600" />
+                Quản lý mã mở khóa xem lời giải
+              </h3>
+              <button
+                onClick={() => setShowPopup(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
 
           <div className="p-4 space-y-4">
             {/* Current Status */}
@@ -279,6 +282,7 @@ export function UnlockCodeButton() {
                 </div>
               </>
             )}
+          </div>
           </div>
         </div>
       )}

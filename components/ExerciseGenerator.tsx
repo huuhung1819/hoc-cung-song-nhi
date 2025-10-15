@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/lib/authContext'
+import { toast } from 'sonner'
 
 interface ExerciseGeneratorProps {
   isUnlockMode: boolean
@@ -17,35 +18,188 @@ interface ExerciseState {
   status: 'idle' | 'asking' | 'answered'
 }
 
-const SUBJECTS = {
-  math: {
-    name: 'Toán',
-    icon: '📐',
-    subSubjects: [
-      'Trắc nghiệm',
-      'Có lời văn', 
-      'Cộng trừ nhân chia'
-    ]
+// Danh sách chủ đề theo từng lớp (Lớp 1-5)
+// Sau này chỉ cần thay đổi text trong danh sách này, không cần sửa code logic
+const SUBJECTS_BY_GRADE: Record<string, Record<string, { name: string; icon: string; subSubjects: string[] }>> = {
+              'Lớp 1': {
+                math: {
+                  name: 'Toán',
+                  icon: '📐',
+                  subSubjects: [
+                    'Toán trắc nghiệm',
+                    'Toán có lời văn',
+                    'Toán điền vào chỗ trống',
+                    'Toán chọn đúng sai',
+                    'Phép cộng',
+                    'Phép trừ',
+                    'Phép nhân',
+                    'Phép chia'
+                  ]
+                },
+    literature: {
+      name: 'Văn',
+      icon: '📝',
+      subSubjects: [
+        'Đọc chữ cái',
+        'Viết câu đơn giản',
+        'Kể chuyện',
+        'Cảm nhận đơn giản'
+      ]
+    },
+    english: {
+      name: 'Tiếng Anh',
+      icon: '🇬🇧',
+      subSubjects: [
+        'Chào hỏi cơ bản',
+        'Số đếm 1-10',
+        'Màu sắc',
+        'Con vật'
+      ]
+    }
   },
-  literature: {
-    name: 'Văn',
-    icon: '📝',
-    subSubjects: [
-      'Nghị luận',
-      'Phân tích',
-      'Cảm thụ',
-      'Viết đoạn'
-    ]
+              'Lớp 2': {
+                math: {
+                  name: 'Toán',
+                  icon: '📐',
+                  subSubjects: [
+                    'Toán trắc nghiệm',
+                    'Toán có lời văn',
+                    'Toán điền vào chỗ trống',
+                    'Toán chọn đúng sai',
+                    'Phép cộng',
+                    'Phép trừ',
+                    'Phép nhân',
+                    'Phép chia'
+                  ]
+                },
+    literature: {
+      name: 'Văn',
+      icon: '📝',
+      subSubjects: [
+        'Đọc hiểu đơn giản',
+        'Viết đoạn ngắn',
+        'Kể chuyện',
+        'Tả người, vật'
+      ]
+    },
+    english: {
+      name: 'Tiếng Anh',
+      icon: '🇬🇧',
+      subSubjects: [
+        'Giới thiệu bản thân',
+        'Gia đình',
+        'Đồ vật trong nhà',
+        'Thức ăn'
+      ]
+    }
   },
-  english: {
-    name: 'Tiếng Anh',
-    icon: '🇬🇧',
-    subSubjects: [
-      'Ngữ pháp',
-      'Từ vựng',
-      'Đọc hiểu',
-      'Viết luận'
-    ]
+  'Lớp 3': {
+    math: {
+      name: 'Toán',
+      icon: '📐',
+      subSubjects: [
+        'Trắc nghiệm',
+        'Có lời văn',
+        'Phép nhân',
+        'Phép chia',
+        'Phép trừ',
+        'Phép cộng',
+        'Toán chọn đúng sai',
+        'Toán điền vào chỗ trống'
+      ]
+    },
+    literature: {
+      name: 'Văn',
+      icon: '📝',
+      subSubjects: [
+        'Đọc hiểu',
+        'Phân tích đơn giản',
+        'Cảm thụ',
+        'Viết đoạn'
+      ]
+    },
+    english: {
+      name: 'Tiếng Anh',
+      icon: '🇬🇧',
+      subSubjects: [
+        'Ngữ pháp cơ bản',
+        'Từ vựng',
+        'Đọc hiểu đơn giản',
+        'Viết câu'
+      ]
+    }
+  },
+  'Lớp 4': {
+    math: {
+      name: 'Toán',
+      icon: '📐',
+      subSubjects: [
+        'Trắc nghiệm',
+        'Có lời văn',
+        'Phép nhân nâng cao',
+        'Phép chia nâng cao',
+        'Phân số cơ bản',
+        'Hình học',
+        'Toán chọn đúng sai',
+        'Toán điền vào chỗ trống'
+      ]
+    },
+    literature: {
+      name: 'Văn',
+      icon: '📝',
+      subSubjects: [
+        'Nghị luận đơn giản',
+        'Phân tích',
+        'Cảm thụ',
+        'Viết đoạn văn'
+      ]
+    },
+    english: {
+      name: 'Tiếng Anh',
+      icon: '🇬🇧',
+      subSubjects: [
+        'Ngữ pháp',
+        'Từ vựng',
+        'Đọc hiểu',
+        'Viết đoạn ngắn'
+      ]
+    }
+  },
+  'Lớp 5': {
+    math: {
+      name: 'Toán',
+      icon: '📐',
+      subSubjects: [
+        'Trắc nghiệm',
+        'Có lời văn',
+        'Phân số',
+        'Số thập phân',
+        'Hình học nâng cao',
+        'Đại số cơ bản',
+        'Toán chọn đúng sai',
+        'Toán điền vào chỗ trống'
+      ]
+    },
+    literature: {
+      name: 'Văn',
+      icon: '📝',
+      subSubjects: [
+        'Nghị luận',
+        'Phân tích',
+        'Cảm thụ',
+        'Viết luận ngắn'
+      ]
+    },
+    english: {
+      name: 'Tiếng Anh',
+      icon: '🇬🇧',
+      subSubjects: [
+        'Ngữ pháp nâng cao',
+        'Từ vựng',
+        'Đọc hiểu',
+        'Viết luận'
+      ]
+    }
   }
 }
 
@@ -64,13 +218,66 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
   
   // Track state of each exercise
   const [exerciseStates, setExerciseStates] = useState<Record<number, ExerciseState>>({})
+  
+  // Popup states
+  const [showTopicPopup, setShowTopicPopup] = useState(false)
+  const [popupSubject, setPopupSubject] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Fetch user grade from database on mount
+  useEffect(() => {
+    const fetchUserGrade = async () => {
+      if (!effectiveUserId) return
+
+      try {
+        const response = await fetch(`/api/user/info?userId=${effectiveUserId}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.user?.grade) {
+            setUserGrade(data.user.grade)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user grade:', error)
+        // Giữ nguyên default 'Lớp 1' nếu có lỗi
+      }
+    }
+
+    fetchUserGrade()
+  }, [effectiveUserId])
+
+  // Listen for profile updates (when grade changes)
+  useEffect(() => {
+    const handleProfileUpdate = async () => {
+      if (!effectiveUserId) return
+
+      try {
+        const response = await fetch(`/api/user/info?userId=${effectiveUserId}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.user?.grade) {
+            setUserGrade(data.user.grade)
+            // Reset selection để user thấy danh sách mới
+            setSelectedSubject(null)
+            setSelectedSubSubject(null)
+            setExercises([])
+            setExerciseStates({})
+            toast.success(`Đã cập nhật danh sách bài tập cho ${data.user.grade}`)
+          }
+        }
+      } catch (error) {
+        console.error('Error refetching grade:', error)
+      }
+    }
+
+    window.addEventListener('profileUpdated', handleProfileUpdate)
+    return () => window.removeEventListener('profileUpdated', handleProfileUpdate)
+  }, [effectiveUserId])
 
   const handleSubjectClick = (subjectKey: string) => {
-    setSelectedSubject(subjectKey)
-    setSelectedSubSubject(null)
-    setExercises([])
-    setExerciseStates({})
-    setError('')
+    setPopupSubject(subjectKey)
+    setShowTopicPopup(true)
+    setSearchQuery('')
   }
 
   const handleSubSubjectClick = (subSubject: string) => {
@@ -78,6 +285,44 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
     setExercises([])
     setExerciseStates({})
     setError('')
+  }
+
+  const handleTopicClickInPopup = (topic: string) => {
+    setSelectedSubject(popupSubject)
+    setSelectedSubSubject(topic)
+    setExercises([])
+    setExerciseStates({})
+    setError('')
+    setShowTopicPopup(false)
+    setPopupSubject(null)
+    setSearchQuery('')
+  }
+
+  const handleClosePopup = () => {
+    setShowTopicPopup(false)
+    setPopupSubject(null)
+    setSearchQuery('')
+  }
+
+  // Helper function: Lấy danh sách môn học theo lớp của user
+  const getSubjectsForGrade = () => {
+    // Sử dụng userGrade từ state (đã được set từ API response)
+    const grade = userGrade || 'Lớp 1'
+    return SUBJECTS_BY_GRADE[grade] || SUBJECTS_BY_GRADE['Lớp 1']
+  }
+
+  const getFilteredTopics = () => {
+    if (!popupSubject) return []
+    const subjects = getSubjectsForGrade()
+    const subject = subjects[popupSubject as keyof typeof subjects]
+    if (!subject) return []
+    
+    const topics = subject.subSubjects
+    if (!searchQuery.trim()) return topics
+    
+    return topics.filter(topic => 
+      topic.toLowerCase().includes(searchQuery.toLowerCase())
+    )
   }
 
   const handleGenerateExercises = async () => {
@@ -216,7 +461,79 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
   }
 
   return (
-    <Card className="border-2 border-blue-200 bg-blue-50">
+    <>
+      {/* Topic Selection Popup */}
+      {showTopicPopup && popupSubject && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[80vh] overflow-hidden">
+            {/* Header */}
+            <div className="p-4 border-b border-gray-200 bg-blue-600">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <span className="text-2xl">{getSubjectsForGrade()[popupSubject as keyof ReturnType<typeof getSubjectsForGrade>]?.icon}</span>
+                  Chọn chủ đề {getSubjectsForGrade()[popupSubject as keyof ReturnType<typeof getSubjectsForGrade>]?.name} {userGrade}
+                </h3>
+                <button
+                  onClick={handleClosePopup}
+                  className="text-white hover:text-gray-200 transition-colors text-xl bg-blue-700 hover:bg-blue-800 rounded-full w-8 h-8 flex items-center justify-center"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Search Bar */}
+            <div className="p-4 border-b border-gray-200">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm chủ đề..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  🔍
+                </div>
+              </div>
+            </div>
+
+            {/* Topics List */}
+            <div className="p-4 max-h-96 overflow-y-auto">
+              <div className="grid grid-cols-1 gap-2">
+                {getFilteredTopics().map((topic) => (
+                  <button
+                    key={topic}
+                    onClick={() => handleTopicClickInPopup(topic)}
+                    className="p-3 text-left border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors bg-white"
+                  >
+                    <span className="font-medium text-gray-900">{topic}</span>
+                  </button>
+                ))}
+                {getFilteredTopics().length === 0 && searchQuery && (
+                  <div className="text-center py-8 text-gray-500">
+                    <div className="text-4xl mb-2">🔍</div>
+                    <p>Không tìm thấy chủ đề nào</p>
+                    <p className="text-sm">Thử từ khóa khác</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={handleClosePopup}
+                className="w-full py-2 px-4 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Card className="border-2 border-blue-200 bg-blue-50">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>📝 Tạo bài tập theo môn học</span>
@@ -244,7 +561,7 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">📚 Chọn môn học:</h3>
           <div className="grid grid-cols-3 gap-4">
-            {Object.entries(SUBJECTS).map(([key, subject]) => (
+            {Object.entries(getSubjectsForGrade()).map(([key, subject]) => (
               <button
                 key={key}
                 onClick={() => handleSubjectClick(key)}
@@ -261,27 +578,16 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
           </div>
         </div>
 
-        {/* Sub Subject Selection */}
-        {selectedSubject && (
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              {(SUBJECTS as any)[selectedSubject].icon} Chọn loại bài tập {(SUBJECTS as any)[selectedSubject].name}:
+        {/* Selected Subject and Topic Display */}
+        {selectedSubject && selectedSubSubject && (
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+              <span className="text-2xl">{getSubjectsForGrade()[selectedSubject as keyof ReturnType<typeof getSubjectsForGrade>]?.icon}</span>
+              Đã chọn: {getSubjectsForGrade()[selectedSubject as keyof ReturnType<typeof getSubjectsForGrade>]?.name} {userGrade} - {selectedSubSubject}
             </h3>
-            <div className="grid grid-cols-2 gap-2">
-              {(SUBJECTS as any)[selectedSubject].subSubjects.map((subSubject: string) => (
-                <button
-                  key={subSubject}
-                  onClick={() => handleSubSubjectClick(subSubject)}
-                  className={`p-3 border rounded-lg hover:bg-gray-50 text-sm font-medium transition-colors ${
-                    selectedSubSubject === subSubject
-                      ? 'border-blue-500 bg-blue-50 text-blue-900'
-                      : 'border-gray-300 text-gray-900'
-                  }`}
-                >
-                  {subSubject}
-                </button>
-              ))}
-            </div>
+            <p className="text-sm text-gray-600">
+              Bấm "AI tạo 5 bài tập" để bắt đầu tạo bài tập
+            </p>
           </div>
         )}
 
@@ -316,7 +622,7 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
         {exercises.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-lg font-semibold text-gray-900">
-              📋 Bài tập {SUBJECTS[selectedSubject as keyof typeof SUBJECTS]?.name} - {selectedSubSubject}:
+              📋 Bài tập {getSubjectsForGrade()[selectedSubject as keyof ReturnType<typeof getSubjectsForGrade>]?.name} {userGrade} - {selectedSubSubject}:
             </h3>
             {exercises.map((exercise, index) => {
               const state = exerciseStates[index] || { status: 'idle', mode: null }
@@ -438,5 +744,6 @@ export function ExerciseGenerator({ isUnlockMode, userId, onSendToChat }: Exerci
         )}
       </CardContent>
     </Card>
+    </>
   )
 }

@@ -122,6 +122,74 @@ function createPrompt(subject: string, subSubject: string, grade: string, count:
   
   const prompts: Record<string, Record<string, string>> = {
     'math': {
+      'Toán trắc nghiệm': isLowGrade 
+        ? `Tạo ${count} câu hỏi trắc nghiệm Toán cho ${grade}. Mỗi câu có 4 đáp án A, B, C, D. 
+
+QUAN TRỌNG: KHÔNG BAO GIỜ mention "hình", "trong hình", "nhìn hình" vì không có hình ảnh minh họa.
+
+Định dạng mỗi câu như sau:
+Câu [số]: [Đề bài text thuần túy]
+A) [Đáp án A]
+B) [Đáp án B] 
+C) [Đáp án C]
+D) [Đáp án D]
+
+Yêu cầu: Bài tập phù hợp ${grade}, độ khó vừa phải, chỉ dùng text không cần hình ảnh.`
+        : `Tạo ${count} câu hỏi trắc nghiệm Toán cho ${grade}. Mỗi câu có 4 đáp án A, B, C, D. Định dạng mỗi câu như sau:
+
+Câu [số]: [Đề bài]
+A) [Đáp án A]
+B) [Đáp án B]
+C) [Đáp án C]
+D) [Đáp án D]
+
+Yêu cầu: Bài tập phải phù hợp chương trình ${grade}, độ khó vừa phải, đa dạng các dạng toán.`,
+
+      'Toán có lời văn': isLowGrade
+        ? `Tạo ${count} bài toán có lời văn cho ${grade}. 
+
+QUAN TRỌNG: KHÔNG BAO GIỜ mention "hình", "trong hình", "nhìn hình" vì không có hình ảnh minh họa.
+
+Mỗi bài phải có tình huống thực tế, gần gũi với học sinh. Định dạng:
+Bài [số]: [Đề bài toán có lời văn chi tiết, chỉ dùng text]
+
+Yêu cầu: Sử dụng ngôn ngữ dễ hiểu, tình huống thực tế (mua sắm, chia đồ, đo lường...), KHÔNG cần hình ảnh.`
+        : `Tạo ${count} bài toán có lời văn cho ${grade}. Mỗi bài phải có tình huống thực tế, gần gũi với học sinh. Định dạng:
+
+Bài [số]: [Đề bài toán có lời văn chi tiết]
+
+Yêu cầu: Sử dụng ngôn ngữ dễ hiểu, tình huống thực tế (mua sắm, chia đồ, đo lường...)`,
+
+      'Toán điền vào chỗ trống': isLowGrade
+        ? `Tạo ${count} bài tập điền vào chỗ trống cho ${grade}. 
+
+QUAN TRỌNG: KHÔNG BAO GIỜ mention "hình", "trong hình", "nhìn hình" vì không có hình ảnh minh họa.
+
+Định dạng:
+Bài [số]: Điền số thích hợp: [Phép tính có chỗ trống]
+
+Yêu cầu: Phép tính đơn giản, chỗ trống rõ ràng, phù hợp ${grade}, chỉ dùng text.`
+        : `Tạo ${count} bài tập điền vào chỗ trống cho ${grade}. Định dạng:
+
+Bài [số]: Điền số thích hợp: [Phép tính có chỗ trống]
+
+Yêu cầu: Phép tính đa dạng, có dấu ngoặc, thứ tự thực hiện, phù hợp ${grade}.`,
+
+      'Toán chọn đúng sai': isLowGrade
+        ? `Tạo ${count} câu hỏi đúng/sai cho ${grade}. 
+
+QUAN TRỌNG: KHÔNG BAO GIỜ mention "hình", "trong hình", "nhìn hình" vì không có hình ảnh minh họa.
+
+Định dạng:
+Câu [số]: [Phát biểu toán học] - Đúng hay Sai?
+
+Yêu cầu: Phát biểu đơn giản về số, phép tính, phù hợp ${grade}, chỉ dùng text.`
+        : `Tạo ${count} câu hỏi đúng/sai cho ${grade}. Định dạng:
+
+Câu [số]: [Phát biểu toán học] - Đúng hay Sai?
+
+Yêu cầu: Phát biểu về số, phép tính, hình học, phù hợp ${grade}.`,
+
       'Trắc nghiệm': isLowGrade 
         ? `Tạo ${count} câu hỏi trắc nghiệm Toán cho ${grade}. Mỗi câu có 4 đáp án A, B, C, D. 
 
@@ -160,20 +228,66 @@ Bài [số]: [Đề bài toán có lời văn chi tiết]
 
 Yêu cầu: Sử dụng ngôn ngữ dễ hiểu, tình huống thực tế (mua sắm, chia đồ, đo lường...)`,
 
-      'Cộng trừ nhân chia': isLowGrade
-        ? `Tạo ${count} bài tập tính toán (cộng, trừ, nhân, chia) cho ${grade}. 
+      'Phép nhân': isLowGrade
+        ? `Tạo ${count} bài tập phép nhân cho ${grade}. 
 
 QUAN TRỌNG: KHÔNG BAO GIỜ mention "hình", "trong hình", "nhìn hình" vì không có hình ảnh minh họa.
 
 Định dạng:
-Bài [số]: Tính: [Biểu thức tính toán đơn giản]
+Bài [số]: Tính: [Phép nhân đơn giản]
 
-Yêu cầu: Phép tính đơn giản phù hợp ${grade}, chỉ dùng số và phép tính cơ bản, KHÔNG cần hình ảnh.`
-        : `Tạo ${count} bài tập tính toán (cộng, trừ, nhân, chia) cho ${grade}. Định dạng:
+Yêu cầu: Phép nhân đơn giản (1-2 chữ số), phù hợp ${grade}, chỉ dùng text.`
+        : `Tạo ${count} bài tập phép nhân cho ${grade}. Định dạng:
 
-Bài [số]: Tính: [Biểu thức tính toán]
+Bài [số]: Tính: [Phép nhân]
 
-Yêu cầu: Có cả phép tính đơn giản và phức tạp, có dấu ngoặc, thứ tự thực hiện.`
+Yêu cầu: Có cả phép nhân đơn giản và phức tạp, có dấu ngoặc, thứ tự thực hiện.`,
+
+      'Phép chia': isLowGrade
+        ? `Tạo ${count} bài tập phép chia cho ${grade}. 
+
+QUAN TRỌNG: KHÔNG BAO GIỜ mention "hình", "trong hình", "nhìn hình" vì không có hình ảnh minh họa.
+
+Định dạng:
+Bài [số]: Tính: [Phép chia đơn giản]
+
+Yêu cầu: Phép chia đơn giản (chia hết), phù hợp ${grade}, chỉ dùng text.`
+        : `Tạo ${count} bài tập phép chia cho ${grade}. Định dạng:
+
+Bài [số]: Tính: [Phép chia]
+
+Yêu cầu: Có cả phép chia đơn giản và phức tạp, có dư, thứ tự thực hiện.`,
+
+      'Phép trừ': isLowGrade
+        ? `Tạo ${count} bài tập phép trừ cho ${grade}. 
+
+QUAN TRỌNG: KHÔNG BAO GIỜ mention "hình", "trong hình", "nhìn hình" vì không có hình ảnh minh họa.
+
+Định dạng:
+Bài [số]: Tính: [Phép trừ đơn giản]
+
+Yêu cầu: Phép trừ đơn giản (1-2 chữ số), phù hợp ${grade}, chỉ dùng text.`
+        : `Tạo ${count} bài tập phép trừ cho ${grade}. Định dạng:
+
+Bài [số]: Tính: [Phép trừ]
+
+Yêu cầu: Có cả phép trừ đơn giản và phức tạp, có dấu ngoặc, thứ tự thực hiện.`,
+
+      'Phép cộng': isLowGrade
+        ? `Tạo ${count} bài tập phép cộng cho ${grade}. 
+
+QUAN TRỌNG: KHÔNG BAO GIỜ mention "hình", "trong hình", "nhìn hình" vì không có hình ảnh minh họa.
+
+Định dạng:
+Bài [số]: Tính: [Phép cộng đơn giản]
+
+Yêu cầu: Phép cộng đơn giản (1-2 chữ số), phù hợp ${grade}, chỉ dùng text.`
+        : `Tạo ${count} bài tập phép cộng cho ${grade}. Định dạng:
+
+Bài [số]: Tính: [Phép cộng]
+
+Yêu cầu: Có cả phép cộng đơn giản và phức tạp, có dấu ngoặc, thứ tự thực hiện.`,
+
     },
     'literature': {
       'Nghị luận': isLowGrade

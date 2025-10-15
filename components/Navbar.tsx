@@ -281,7 +281,7 @@ export function Navbar() {
         <div className="flex-1 max-w-sm mx-8">
           <TokenProgress 
             userId={authUser?.id || ''}
-            label="Token hôm nay"
+            label="Credit còn lại"
           />
         </div>
 

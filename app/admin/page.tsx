@@ -24,7 +24,7 @@ export default function AdminDashboard() {
     totalUsers: 1247,
     activeUsers: 892,
     totalLessons: 156,
-    tokenUsage: 45892,
+    creditUsage: 45892,
     revenue: 12500000,
     systemUptime: 99.9
   }
@@ -61,7 +61,7 @@ export default function AdminDashboard() {
       id: 4,
       type: 'system',
       user: 'Hệ thống',
-      action: 'token reset hàng ngày hoàn thành',
+      action: 'credit reset hàng ngày hoàn thành',
       timestamp: '1 giờ trước',
       icon: Clock,
       color: 'text-purple-600'
@@ -78,11 +78,11 @@ export default function AdminDashboard() {
   ]
 
   const topUsers = [
-    { name: 'Nguyễn Văn A', lessons: 45, tokens: 2340, score: 9.5 },
-    { name: 'Trần Thị B', lessons: 42, tokens: 2100, score: 9.2 },
-    { name: 'Lê Văn C', lessons: 38, tokens: 1890, score: 8.9 },
-    { name: 'Phạm Thị D', lessons: 35, tokens: 1750, score: 8.7 },
-    { name: 'Hoàng Văn E', lessons: 32, tokens: 1600, score: 8.5 }
+    { name: 'Nguyễn Văn A', lessons: 45, credits: 2340, score: 9.5 },
+    { name: 'Trần Thị B', lessons: 42, credits: 2100, score: 9.2 },
+    { name: 'Lê Văn C', lessons: 38, credits: 1890, score: 8.9 },
+    { name: 'Phạm Thị D', lessons: 35, credits: 1750, score: 8.7 },
+    { name: 'Hoàng Văn E', lessons: 32, credits: 1600, score: 8.5 }
   ]
 
   const systemHealth = [
@@ -163,11 +163,11 @@ export default function AdminDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Token đã sử dụng</CardTitle>
+            <CardTitle className="text-sm font-medium">Credit đã sử dụng</CardTitle>
             <TrendingUp className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.tokenUsage.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{stats.creditUsage.toLocaleString()}</div>
             <p className="text-xs text-orange-600 mt-1">
               Tháng này
             </p>
@@ -259,7 +259,7 @@ export default function AdminDashboard() {
                     <div>
                       <p className="font-medium">{user.name}</p>
                       <p className="text-sm text-gray-600">
-                        {user.lessons} bài học • {user.tokens} token
+                        {user.lessons} bài học • {user.credits} credit
                       </p>
                     </div>
                   </div>

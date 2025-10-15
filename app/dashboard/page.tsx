@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { TokenProgress } from '@/components/TokenProgress'
 import { LessonCard } from '@/components/LessonCard'
 import { ChatInterface } from '@/components/ChatInterface'
 import { ExerciseGenerator } from '@/components/ExerciseGenerator'
@@ -135,13 +134,6 @@ export default function DashboardPage() {
           </div>
         </div>
         
-        {/* Questions Progress */}
-        <div className="mt-6">
-          <TokenProgress 
-            userId={authUser?.id || ''}
-            label="Token hôm nay"
-          />
-        </div>
       </div>
 
       {/* 🆕 AI Chat Interface - FULL WIDTH */}

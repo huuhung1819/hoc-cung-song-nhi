@@ -10,7 +10,7 @@ interface TokenProgressProps {
   label?: string
 }
 
-export function TokenProgress({ userId, className, label = "Token hôm nay" }: TokenProgressProps) {
+export function TokenProgress({ userId, className, label = "Credit còn lại" }: TokenProgressProps) {
   const [tokenData, setTokenData] = useState({
     used: 0,
     quota: 5000,
@@ -66,9 +66,9 @@ export function TokenProgress({ userId, className, label = "Token hôm nay" }: T
   useEffect(() => {
     fetchTokenData()
 
-    // Listen for token updates
+    // Listen for credit updates
     const handleTokenUpdate = () => {
-      console.log('🔄 Token update event received, refreshing...')
+      console.log('🔄 Credit update event received, refreshing...')
       fetchTokenData()
     }
 
@@ -112,9 +112,9 @@ export function TokenProgress({ userId, className, label = "Token hôm nay" }: T
         </span>
       </div>
 
-      {/* Token Count */}
+      {/* Credit Count */}
       <div className="flex items-center justify-between text-xs text-gray-600">
-        <span>{(tokenData.used || 0).toLocaleString()} tokens</span>
+        <span>{(tokenData.used || 0).toLocaleString()} credit</span>
         <span>/ {(tokenData.quota || 5000).toLocaleString()}</span>
       </div>
 
@@ -126,27 +126,27 @@ export function TokenProgress({ userId, className, label = "Token hôm nay" }: T
         />
       </div>
 
-      {/* Remaining Tokens */}
+      {/* Remaining Credits */}
       <div className="text-xs text-gray-500">
-        Còn: {(tokenData.remaining || 5000).toLocaleString()} tokens
+        Còn: {(tokenData.remaining || 5000).toLocaleString()} credit
       </div>
 
       {/* Status Message */}
       {isNearLimit && !isAtLimit && (
         <div className="text-xs text-yellow-600 font-medium">
-          ⚠️ Gần hết token! Cân nhắc nâng cấp gói
+          ⚠️ Gần hết credit! Cân nhắc nâng cấp gói
         </div>
       )}
       
       {isAtLimit && (
         <div className="text-xs text-red-600 font-medium">
-          ❌ Đã hết token! Vui lòng nâng cấp gói
+          ❌ Đã hết credit! Vui lòng nâng cấp gói
         </div>
       )}
 
       {!isNearLimit && !isAtLimit && (
         <div className="text-xs text-green-600 font-medium">
-          ✅ Còn nhiều token để sử dụng
+          ✅ Còn nhiều credit để sử dụng
         </div>
       )}
     </div>

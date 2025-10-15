@@ -2,14 +2,12 @@ import { createClient, createServerClientForAPI } from './supabaseServer'
 
 export const tokenManager = {
   /**
-   * Create demo user if not exists
+   * Create demo user if not exists (TOTAL TOKENS - NO RESET)
    */
   async createDemoUser(userId: string) {
     const supabase = createServerClientForAPI()
 
     try {
-      const today = new Date().toISOString().split('T')[0]
-      
       // Generate proper UUID for demo user
       const demoUserId = userId.includes('demo') ? 
         `550e8400-e29b-41d4-a716-446655440000` : // Fixed UUID for demo
@@ -24,7 +22,6 @@ export const tokenManager = {
           role: 'parent',
           token_quota: 10000,
           token_used_today: 0,
-          last_reset: today,
           plan: 'basic',
           created_at: new Date().toISOString()
         })
@@ -38,7 +35,7 @@ export const tokenManager = {
   },
 
   /**
-   * Check if user has token quota remaining (ACCUMULATIVE - NO DAILY RESET)
+   * Check if user has token quota remaining (TOTAL TOKENS - NO RESET)
    */
   async checkTokenQuota(userId: string): Promise<{ hasQuota: boolean; remaining: number; total: number }> {
     const supabase = createServerClientForAPI()
@@ -60,7 +57,7 @@ export const tokenManager = {
         }
       }
 
-      // ACCUMULATIVE: No daily reset, just check against total quota
+      // TOTAL TOKENS: No reset, just check against total quota
       const remaining = Math.max(0, user.token_quota - user.token_used_today)
 
       return {
@@ -75,7 +72,7 @@ export const tokenManager = {
   },
 
   /**
-   * Get detailed token information for user
+   * Get detailed token information for user (TOTAL TOKENS - NO RESET)
    */
   async getTokenInfo(userId: string) {
     const supabase = createServerClientForAPI()
@@ -83,7 +80,7 @@ export const tokenManager = {
     try {
       const { data: user, error } = await supabase
         .from('users')
-        .select('token_quota, token_used_today, last_reset, plan, name, email')
+        .select('token_quota, token_used_today, plan, name, email')
         .eq('id', userId)
         .single()
 
@@ -106,10 +103,9 @@ export const tokenManager = {
             plan: 'basic',
             token_quota: 10000,
             token_used_today: 0,
-            last_reset: new Date().toISOString(),
             created_at: new Date().toISOString()
           })
-          .select('token_quota, token_used_today, last_reset, plan, name, email')
+          .select('token_quota, token_used_today, plan, name, email')
           .single()
 
         if (createError || !newUser) {
@@ -122,10 +118,8 @@ export const tokenManager = {
           used: newUser.token_used_today,
           remaining: newUser.token_quota,
           plan: newUser.plan,
-          lastReset: newUser.last_reset,
           name: newUser.name,
-          email: newUser.email,
-          needsReset: false
+          email: newUser.email
         }
       }
 
@@ -168,60 +162,9 @@ export const tokenManager = {
     }
   },
 
-  /**
-   * Reset daily tokens for a user
-   */
-  async resetDailyTokens(userId: string) {
-    const supabase = createServerClientForAPI()
-
-    try {
-      const today = new Date().toISOString().split('T')[0]
-
-      const { error } = await supabase
-        .from('users')
-        .update({
-          token_used_today: 0,
-          last_reset: today
-        })
-        .eq('id', userId)
-
-      if (error) {
-        throw error
-      }
-    } catch (error) {
-      console.error('Error resetting daily tokens:', error)
-      throw new Error('Không thể reset token hàng ngày')
-    }
-  },
 
   /**
-   * Reset daily tokens for all users (cron job)
-   */
-  async resetAllDailyTokens() {
-    const supabase = createServerClientForAPI()
-
-    try {
-      const today = new Date().toISOString().split('T')[0]
-
-      const { error } = await supabase
-        .from('users')
-        .update({
-          token_used_today: 0,
-          last_reset: today
-        })
-        .neq('last_reset', today) // Only update users who haven't been reset today
-
-      if (error) {
-        throw error
-      }
-    } catch (error) {
-      console.error('Error resetting all daily tokens:', error)
-      throw new Error('Không thể reset token cho tất cả người dùng')
-    }
-  },
-
-  /**
-   * Update token usage with real OpenAI usage data
+   * Update token usage with real OpenAI usage data (TOTAL TOKENS - NO RESET)
    */
   async updateTokenUsage(userId: string, tokensUsed: number): Promise<{ used: number; quota: number; remaining: number }> {
     const supabase = createServerClientForAPI()
@@ -238,7 +181,7 @@ export const tokenManager = {
         throw new Error('Không thể lấy thông tin token hiện tại')
       }
 
-      // Calculate new usage (accumulative)
+      // Calculate new usage (TOTAL - NO RESET)
       const newUsed = currentData.token_used_today + tokensUsed
       
       // Update with new usage
@@ -255,7 +198,7 @@ export const tokenManager = {
         throw new Error('Không thể cập nhật token usage')
       }
 
-      console.log(`✅ Token updated: ${currentData.token_used_today} + ${tokensUsed} = ${updateData.token_used_today}`)
+      console.log(`✅ Token updated: ${currentData.token_used_today} + ${tokensUsed} = ${updateData.token_used_today} (TOTAL - NO RESET)`)
 
       return {
         used: updateData.token_used_today,
@@ -384,29 +327,4 @@ export const tokenManager = {
     }
   },
 
-  /**
-   * Reset quota for demo user (for testing)
-   */
-  async resetDemoUserQuota() {
-    const supabase = createServerClientForAPI()
-    const demoUserId = '550e8400-e29b-41d4-a716-446655440000'
-    
-    try {
-      const { error } = await supabase
-        .from('users')
-        .update({
-          token_used_today: 0,
-          last_reset: new Date().toISOString().split('T')[0]
-        })
-        .eq('id', demoUserId)
-
-      if (error) {
-        console.error('Error resetting demo user quota:', error)
-      } else {
-        console.log('Demo user quota reset successfully')
-      }
-    } catch (error) {
-      console.error('Error resetting demo user quota:', error)
-    }
-  }
 }

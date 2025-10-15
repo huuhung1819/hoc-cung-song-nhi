@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Get token info error:', error)
     return NextResponse.json(
-      { error: 'Có lỗi xảy ra khi lấy thông tin token' },
+      { error: 'Có lỗi xảy ra khi lấy thông tin credit' },
       { status: 500 }
     )
   }
@@ -43,33 +43,33 @@ export async function POST(request: NextRequest) {
         // Reset daily tokens
         await tokenManager.resetDailyTokens(userId)
         return NextResponse.json({
-          message: 'Reset token thành công'
+          message: 'Reset credit thành công'
         })
 
       case 'add':
         // Add tokens (admin only)
         if (!amount || amount <= 0) {
           return NextResponse.json(
-            { error: 'Số lượng token không hợp lệ' },
+            { error: 'Số lượng credit không hợp lệ' },
             { status: 400 }
           )
         }
         await tokenManager.addTokens(userId, amount)
         return NextResponse.json({
-          message: `Đã thêm ${amount} token`
+          message: `Đã thêm ${amount} credit`
         })
 
       case 'set_quota':
         // Set token quota (admin only)
         if (!amount || amount <= 0) {
           return NextResponse.json(
-            { error: 'Quota token không hợp lệ' },
+            { error: 'Quota credit không hợp lệ' },
             { status: 400 }
           )
         }
         await tokenManager.setTokenQuota(userId, amount)
         return NextResponse.json({
-          message: `Đã cập nhật quota token thành ${amount}`
+          message: `Đã cập nhật quota credit thành ${amount}`
         })
 
       default:
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Token action error:', error)
     return NextResponse.json(
-      { error: 'Có lỗi xảy ra khi thực hiện hành động token' },
+      { error: 'Có lỗi xảy ra khi thực hiện hành động credit' },
       { status: 500 }
     )
   }

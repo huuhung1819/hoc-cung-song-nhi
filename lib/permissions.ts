@@ -14,6 +14,7 @@ export const PERMISSIONS = {
   'users.edit': 'Chỉnh sửa thông tin người dùng',
   'users.delete': 'Xóa người dùng',
   'users.manage_roles': 'Quản lý vai trò người dùng',
+  'users.edit_own': 'Chỉnh sửa thông tin cá nhân (tài khoản riêng)',
 
   // Student Management
   'students.view': 'Xem danh sách học sinh',
@@ -131,7 +132,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     'analytics.view', 'analytics.student', // Only their children's analytics
     'notifications.view',
     'tokens.view',
-    'ai.chat'
+    'ai.chat',
+    'users.edit_own' // Có thể sửa thông tin tài khoản của chính mình
   ],
 
   [ROLES.STUDENT]: [
@@ -141,7 +143,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     'analytics.view', 'analytics.student', // Only their own analytics
     'notifications.view',
     'tokens.view',
-    'ai.chat'
+    'ai.chat',
+    'users.edit_own' // Có thể sửa thông tin tài khoản của chính mình
   ]
 }
 
@@ -171,7 +174,7 @@ export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
   '/dashboard/assignments': ['assignments.view'],
   '/dashboard/lessons': ['lessons.view'],
   '/dashboard/progress': ['analytics.student'],
-  '/dashboard/account': ['users.edit'],
+  '/dashboard/account': ['users.edit_own'], // Tất cả user có thể sửa tài khoản của mình
 
   // API routes
   '/api/admin/*': ['system.config'],

@@ -16,30 +16,30 @@ export function PlanDisplay({ plan, className = '', showUserName = false, userNa
     
     if (lowerPlan.includes('cao cấp') || lowerPlan.includes('premium') || lowerPlan.includes('vip')) {
       return {
-        container: 'bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-1 rounded-xl shadow-lg',
-        content: 'bg-white rounded-lg px-4 py-3 flex items-center space-x-3',
-        icon: <Crown className="w-6 h-6 text-yellow-500" />,
-        text: 'font-bold text-lg bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent',
-        glow: 'shadow-[0_0_20px_rgba(168,85,247,0.4)]'
+        container: 'bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-0.5 rounded-md shadow-lg',
+        content: 'bg-white rounded-sm px-1.5 py-1.5 flex items-center space-x-1.5',
+        icon: <Crown className="w-3 h-3 text-yellow-500 flex-shrink-0" />,
+        text: 'font-bold text-xs bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent truncate',
+        glow: 'shadow-[0_0_10px_rgba(168,85,247,0.2)]'
       }
     }
     
     if (lowerPlan.includes('nâng cao') || lowerPlan.includes('advanced') || lowerPlan.includes('pro')) {
       return {
-        container: 'bg-gradient-to-br from-blue-500 to-indigo-600 p-1 rounded-xl shadow-md',
-        content: 'bg-white rounded-lg px-4 py-3 flex items-center space-x-3',
-        icon: <Star className="w-5 h-5 text-blue-500" />,
-        text: 'font-semibold text-lg bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent',
-        glow: 'shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+        container: 'bg-gradient-to-br from-blue-500 to-indigo-600 p-0.5 rounded-md shadow-md',
+        content: 'bg-white rounded-sm px-1.5 py-1.5 flex items-center space-x-1.5',
+        icon: <Star className="w-3 h-3 text-blue-500 flex-shrink-0" />,
+        text: 'font-semibold text-xs bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent truncate',
+        glow: 'shadow-[0_0_8px_rgba(59,130,246,0.2)]'
       }
     }
     
     // Default for basic plan
     return {
-      container: 'bg-gray-100 p-1 rounded-lg shadow-sm border',
-      content: 'bg-white rounded-md px-3 py-2 flex items-center space-x-2',
-      icon: <Zap className="w-4 h-4 text-gray-600" />,
-      text: 'font-medium text-base text-gray-700',
+      container: 'bg-gray-100 p-0.5 rounded-md shadow-sm border',
+      content: 'bg-white rounded-sm px-1.5 py-1 flex items-center space-x-1.5',
+      icon: <Zap className="w-3 h-3 text-gray-600 flex-shrink-0" />,
+      text: 'font-medium text-xs text-gray-700 truncate',
       glow: ''
     }
   }
@@ -50,12 +50,12 @@ export function PlanDisplay({ plan, className = '', showUserName = false, userNa
     <div className={`${style.container} ${style.glow} ${className}`}>
       <div className={style.content}>
         {style.icon}
-        <div className="text-right flex-1">
+        <div className="text-right flex-1 min-w-0">
           {showUserName && userName && (
-            <p className="text-xs text-gray-500 mb-1">{userName}</p>
+            <p className="text-[10px] text-gray-500 mb-0.5 truncate leading-tight">{userName}</p>
           )}
           {!showUserName && (
-            <p className="text-xs text-gray-500 mb-1">Gói học hiện tại</p>
+            <p className="text-[10px] text-gray-500 mb-0.5 leading-tight">Gói hiện tại</p>
           )}
           <p className={style.text}>{plan}</p>
         </div>

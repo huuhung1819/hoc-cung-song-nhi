@@ -19,8 +19,6 @@ import {
   X,
   LogOut,
   FileText,
-  Clock,
-  Key,
   Users,
   ClipboardList,
   PenTool,
@@ -138,12 +136,7 @@ export function Sidebar() {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [user, setUser] = useState({
     name: 'Đang tải...',
-    usagePercentage: 0,
-    isNearLimit: false,
-    isAtLimit: false,
     plan: 'Gói Cơ Bản',
-    unlocksUsed: 0,
-    unlocksQuota: 10,
     role: 'parent' // Default role
   })
   const [isLoadingUser, setIsLoadingUser] = useState(false)
@@ -239,7 +232,7 @@ export function Sidebar() {
       <div className={cn(
         "bg-white border-r border-gray-200 transition-all duration-300",
         "fixed md:relative inset-y-0 left-0 z-50",
-        "md:translate-x-0",
+        "md:translate-x-0 flex flex-col",
         isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
         isCollapsed ? "w-16" : "w-64"
       )}>
@@ -281,7 +274,7 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4">
+      <nav className="flex-1 p-4 overflow-y-auto">
         <ul className="space-y-2">
           {getSidebarItems(user.role).map((item) => {
             const Icon = item.icon
@@ -308,65 +301,23 @@ export function Sidebar() {
         </ul>
       </nav>
 
-      {/* Questions Progress */}
+      {/* Credit Progress */}
       {!isCollapsed && (
         <div className="px-4 pb-4">
           <TokenProgress 
-            usagePercentage={user.usagePercentage}
-            isNearLimit={user.isNearLimit}
-            isAtLimit={user.isAtLimit}
-            label="Số câu hỏi hôm nay"
-            isLoading={isLoadingUser}
+            userId={authUser?.id || ''}
+            label="Credit còn lại"
+            className="w-full"
           />
         </div>
       )}
 
-      {/* Stats Cards */}
-      {!isCollapsed && (
-        <div className="p-3 border-t border-gray-200">
-          <h3 className="text-xs font-semibold text-gray-700 mb-2">Thống kê</h3>
-          <div className="space-y-2">
-            {/* Bài tập đã làm */}
-            <div className="bg-gray-50 rounded-md p-2 border border-gray-200">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center space-x-1.5">
-                  <FileText className="h-3 w-3 text-blue-600" />
-                  <span className="text-xs font-medium text-gray-700">Bài tập đã làm</span>
-                </div>
-              </div>
-              <div className="text-sm font-bold text-gray-900">{Math.floor(Math.random() * 20 + 5)} bài</div>
-            </div>
-
-            {/* Thời gian học hôm nay */}
-            <div className="bg-gray-50 rounded-md p-2 border border-gray-200">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center space-x-1.5">
-                  <Clock className="h-3 w-3 text-purple-600" />
-                  <span className="text-xs font-medium text-gray-700">Thời gian học</span>
-                </div>
-              </div>
-              <div className="text-sm font-bold text-gray-900">{Math.floor(Math.random() * 60 + 30)} phút</div>
-            </div>
-
-            {/* Lượt mở khóa */}
-            <div className="bg-gray-50 rounded-md p-2 border border-gray-200">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center space-x-1.5">
-                  <Key className="h-3 w-3 text-green-600" />
-                  <span className="text-xs font-medium text-gray-700">Lượt mở khóa</span>
-                </div>
-              </div>
-              <div className="text-sm font-bold text-gray-900">{user.unlocksUsed}/{user.unlocksQuota}</div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="space-y-3">
+      <div className="p-3 border-t border-gray-200 flex-shrink-0">
+        <div className="space-y-2">
           {!isCollapsed && (
-            <div className="space-y-3">
+            <div className="space-y-1.5 w-full">
               <PlanDisplay 
                 plan={user.plan} 
                 className="w-full" 
@@ -376,10 +327,10 @@ export function Sidebar() {
               {(user.plan === 'Gói Cơ Bản' || user.plan === 'Gói Miễn Phí') && (
                 <Button
                   size="sm"
-                  className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white text-xs py-1 shadow-md hover:shadow-lg transition-all duration-200"
+                  className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white text-xs py-1.5 px-2 shadow-md hover:shadow-lg transition-all duration-200"
                   onClick={() => window.open('/pricing', '_blank')}
                 >
-                  Nâng cấp gói
+                  <span className="block truncate">Nâng cấp gói</span>
                 </Button>
               )}
             </div>
