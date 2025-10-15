@@ -188,11 +188,8 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
             {/* Token Progress */}
             <div className="px-4 pb-4">
               <TokenProgress
-                usagePercentage={Math.round((user.unlocksUsed / user.unlocksQuota) * 100)}
-                isNearLimit={user.isNearLimit}
-                isAtLimit={user.isAtLimit}
-                label="Số câu hỏi hôm nay"
-                isLoading={isLoadingUser}
+                userId={authUser?.id || ''}
+                label="Credit còn lại"
               />
             </div>
 

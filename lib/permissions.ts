@@ -156,8 +156,8 @@ export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
   // Admin routes
   '/admin': ['analytics.system'],
   '/admin/users': ['users.view', 'users.manage_roles'],
-  '/admin/teachers': ['teachers.view', 'teachers.manage_roles'],
-  '/admin/students': ['students.view', 'students.manage_roles'],
+  '/admin/teachers': ['teachers.view'],
+  '/admin/students': ['students.view'],
   '/admin/analytics': ['analytics.system'],
   '/admin/system': ['system.config'],
 

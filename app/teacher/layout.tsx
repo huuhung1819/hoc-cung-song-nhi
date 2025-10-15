@@ -31,7 +31,7 @@ export default function TeacherLayout({
       }
 
       try {
-        const response = await fetch(`/api/user/info?userId=${authUser.id}`)
+        const response = await fetch(`/api/user/info?userId=${authUser?.id || ''}`)
         if (response.ok) {
           const data = await response.json()
           const role = data.user?.role

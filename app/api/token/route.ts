@@ -40,10 +40,9 @@ export async function POST(request: NextRequest) {
 
     switch (action) {
       case 'reset':
-        // Reset daily tokens
-        await tokenManager.resetDailyTokens(userId)
+        // Total credit system: no daily reset. Keep endpoint for backward compatibility.
         return NextResponse.json({
-          message: 'Reset credit thành công'
+          message: 'Hệ thống credit mới không hỗ trợ reset hàng ngày'
         })
 
       case 'add':

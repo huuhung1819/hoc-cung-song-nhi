@@ -33,6 +33,7 @@ interface Question {
 
 interface Assignment {
   id: string
+  assignmentId: string
   title: string
   subject: string
   gradeLevel: string
@@ -45,6 +46,7 @@ interface Assignment {
   score?: number | null
   feedback?: string | null
   submittedAt?: string | null
+  studentAnswers?: Record<string, string>
 }
 
 export default function DoAssignmentPage() {
@@ -224,7 +226,7 @@ export default function DoAssignmentPage() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-green-900">
-                  Chúc mừng {user?.name || 'bạn'} đã hoàn thành bài tập!
+                  Chúc mừng {(user as any)?.user_metadata?.name || (user as any)?.email || 'bạn'} đã hoàn thành bài tập!
                 </h2>
                 <p className="text-green-700 mt-1">
                   Bài tập đã được giáo viên chấm điểm

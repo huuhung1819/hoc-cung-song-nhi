@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
         )
       `)
       .eq('assignment.teacher_id', teacherId)
-      .order('submitted_at', { ascending: false, nullsLast: true })
+      .order('submitted_at', { ascending: false, nullsFirst: false })
 
     if (status) {
       query = query.eq('status', status)
@@ -62,12 +62,12 @@ export async function GET(req: NextRequest) {
     }
 
     // Format response
-    const formattedSubmissions = submissions?.map(item => ({
+    const formattedSubmissions = submissions?.map((item: any) => ({
       id: item.id,
       assignmentId: item.assignment.id,
       assignmentTitle: item.assignment.title,
       subject: item.assignment.subject,
-      grade: item.assignment.grade,
+      gradeLevel: item.assignment.grade,
       topic: item.assignment.topic,
       deadline: item.assignment.deadline,
       questions: item.assignment.questions,
@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
       studentGrade: item.student.grade,
       status: item.status,
       submittedAt: item.submitted_at,
-      grade: item.grade,
+      score: item.grade,
       feedback: item.feedback,
       studentAnswers: item.answers,
       assignedAt: item.created_at

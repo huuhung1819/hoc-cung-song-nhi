@@ -210,7 +210,7 @@ export default function TeacherDashboard() {
                 <Avatar>
                   <AvatarImage src={student.avatar} />
                   <AvatarFallback>
-                    {student.name.split(' ').map(n => n[0]).join('')}
+                    {student.name.split(' ').map((n: string) => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
                 <div>

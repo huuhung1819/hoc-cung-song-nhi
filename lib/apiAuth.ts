@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabaseServer'
+import { createClient } from '@/lib/supabaseServer'
 import { hasPermission, hasAnyPermission, hasAllPermissions, Permission, Role } from '@/lib/permissions'
 
 interface AuthResult {
@@ -19,7 +19,7 @@ interface AuthResult {
  */
 export async function getAuthFromRequest(request: NextRequest): Promise<AuthResult> {
   try {
-    const supabase = createServerClient()
+    const supabase = createClient()
     
     // Get user from Supabase auth
     const { data: { user }, error: authError } = await supabase.auth.getUser()

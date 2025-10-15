@@ -26,7 +26,7 @@ interface Submission {
   assignmentId: string
   assignmentTitle: string
   subject: string
-  grade: string
+  gradeLevel: string
   topic: string
   deadline: string
   questions: any[]
@@ -37,7 +37,7 @@ interface Submission {
   studentGrade: string
   status: 'submitted' | 'graded'
   submittedAt: string
-  grade: number | null
+  score: number | null
   feedback: string | null
   studentAnswers: any
 }
@@ -429,9 +429,9 @@ export default function GradingPage() {
                           <Badge variant={submission.status === 'submitted' ? 'default' : 'outline'}>
                             {submission.status === 'submitted' ? 'Chờ chấm' : 'Đã chấm'}
                           </Badge>
-                          {submission.grade && (
+                          {submission.score && (
                             <Badge variant="secondary">
-                              {submission.grade}/10
+                              {submission.score}/10
                             </Badge>
                           )}
                         </div>
@@ -507,7 +507,7 @@ export default function GradingPage() {
                     <span className="font-medium">Chủ đề:</span> {selectedSubmission.topic}
                   </div>
                   <div>
-                    <span className="font-medium">Lớp:</span> {selectedSubmission.grade}
+                    <span className="font-medium">Lớp:</span> {selectedSubmission.gradeLevel}
                   </div>
                   <div>
                     <span className="font-medium">Nộp lúc:</span> {formatDate(selectedSubmission.submittedAt)}

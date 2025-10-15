@@ -22,8 +22,10 @@ export async function GET(request: NextRequest) {
       .eq('id', userId)
       .single()
 
-    console.log('User data from database:', userData)
-    console.log('User error:', userError)
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('User data from database:', userData)
+      console.log('User error:', userError)
+    }
 
     // Get token info from tokenManager
     const tokenInfo = await tokenManager.getTokenInfo(userId)
@@ -59,8 +61,7 @@ export async function GET(request: NextRequest) {
         isNearLimit: isNearLimit,
         isAtLimit: isAtLimit,
         unlocksUsed: 0, // TODO: Implement unlock tracking
-        unlocksQuota: 10,
-        lastReset: tokenInfo.lastReset
+        unlocksQuota: 10
       }
     })
 
