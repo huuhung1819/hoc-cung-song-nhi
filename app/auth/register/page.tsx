@@ -12,7 +12,7 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [fullName, setFullName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
-  const [grade, setGrade] = useState('Lớp 1')
+  const [grade, setGrade] = useState('')
   const [userRole, setUserRole] = useState('parent')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -169,24 +169,24 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         {/* Logo/Header Section */}
-        <div className="text-center mb-8">
-          <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4 shadow-lg">
-            <span className="text-2xl font-bold text-white">SN</span>
+        <div className="text-center mb-6">
+          <div className="mx-auto h-12 w-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-3 shadow-lg">
+            <span className="text-xl font-bold text-white">SN</span>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">
             Đăng ký tài khoản
           </h2>
-          <p className="text-gray-600">
+          <p className="text-sm text-gray-600">
             Tạo tài khoản để bắt đầu học cùng con
           </p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-          <form className="space-y-6" onSubmit={handleRegister}>
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+          <form className="space-y-4" onSubmit={handleRegister}>
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <p className="text-red-600 text-sm text-center">{error}</p>
@@ -200,7 +200,7 @@ export default function RegisterPage() {
 
             {/* Full Name */}
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
                 Họ và tên <span className="text-red-500">*</span>
               </label>
               <input
@@ -209,7 +209,7 @@ export default function RegisterPage() {
                 type="text"
                 autoComplete="name"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-sm"
                 placeholder="Nhập họ và tên của bạn"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
@@ -218,7 +218,7 @@ export default function RegisterPage() {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email <span className="text-red-500">*</span>
               </label>
               <input
@@ -227,7 +227,7 @@ export default function RegisterPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-sm"
                 placeholder="Nhập địa chỉ email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -236,7 +236,7 @@ export default function RegisterPage() {
 
             {/* Phone Number */}
             <div>
-              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
                 Số điện thoại <span className="text-red-500">*</span>
               </label>
               <input
@@ -245,7 +245,7 @@ export default function RegisterPage() {
                 type="tel"
                 autoComplete="tel"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-sm"
                 placeholder="Nhập số điện thoại"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
@@ -255,17 +255,18 @@ export default function RegisterPage() {
 
             {/* Grade Selection */}
             <div>
-              <label htmlFor="grade" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="grade" className="block text-sm font-medium text-gray-700 mb-1">
                 Lớp học của con <span className="text-red-500">*</span>
               </label>
               <select
                 id="grade"
                 name="grade"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white text-sm"
                 value={grade}
                 onChange={(e) => setGrade(e.target.value)}
               >
+                <option value="">-- Chọn lớp học --</option>
                 <option value="Lớp 1">Lớp 1</option>
                 <option value="Lớp 2">Lớp 2</option>
                 <option value="Lớp 3">Lớp 3</option>
@@ -280,25 +281,24 @@ export default function RegisterPage() {
                 <option value="Lớp 12">Lớp 12</option>
               </select>
               <p className="text-xs text-gray-500 mt-1">
-                AI sẽ tạo bài tập phù hợp với lớp học này
+                📚 Con chọn lớp để AI đưa ra bài tập đúng lớp của con
               </p>
             </div>
 
             {/* Teacher Info Box */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                  <svg className="h-4 w-4 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-blue-800">
+                <div className="ml-2">
+                  <h3 className="text-xs font-medium text-purple-800">
                     Dành cho Giáo viên
                   </h3>
-                  <div className="mt-2 text-sm text-blue-700">
-                    <p>Nếu bạn là giáo viên và muốn sử dụng hệ thống, vui lòng liên hệ quản trị viên để được cấp tài khoản.</p>
-                    <p className="mt-1 font-medium">Email: admin@example.com</p>
+                  <div className="mt-1 text-xs text-purple-700">
+                    <p>Nếu bạn là giáo viên, vui lòng liên hệ quản trị viên để được cấp tài khoản.</p>
                   </div>
                 </div>
               </div>
@@ -306,7 +306,7 @@ export default function RegisterPage() {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 Mật khẩu <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -316,7 +316,7 @@ export default function RegisterPage() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   required
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-sm"
                   placeholder="Mật khẩu (ít nhất 6 ký tự)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -327,9 +327,9 @@ export default function RegisterPage() {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
                   )}
                 </button>
               </div>
@@ -337,7 +337,7 @@ export default function RegisterPage() {
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
                 Xác nhận mật khẩu <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -347,7 +347,7 @@ export default function RegisterPage() {
                   type={showConfirmPassword ? "text" : "password"}
                   autoComplete="new-password"
                   required
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-sm"
                   placeholder="Nhập lại mật khẩu"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -358,24 +358,24 @@ export default function RegisterPage() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
                   {showConfirmPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <EyeOff className="h-4 w-4 text-gray-400 hover:text-gray-600" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <Eye className="h-4 w-4 text-gray-400 hover:text-gray-600" />
                   )}
                 </button>
               </div>
             </div>
 
             {/* CAPTCHA */}
-            <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
               <input
                 type="checkbox"
                 id="captcha"
                 checked={captchaChecked}
                 onChange={(e) => setCaptchaChecked(e.target.checked)}
-                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
               />
-              <label htmlFor="captcha" className="text-sm font-medium text-gray-700">
+              <label htmlFor="captcha" className="text-xs font-medium text-gray-700">
                 Tôi không phải robot
               </label>
             </div>
@@ -383,12 +383,12 @@ export default function RegisterPage() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 px-4 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-sm"
               disabled={loading || !captchaChecked}
             >
               {loading ? (
                 <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                   Đang đăng ký...
                 </div>
               ) : (
@@ -397,12 +397,12 @@ export default function RegisterPage() {
             </button>
 
             {/* Login Link */}
-            <div className="text-center pt-4">
-              <p className="text-sm text-gray-600">
+            <div className="text-center pt-3">
+              <p className="text-xs text-gray-600">
                 Đã có tài khoản?{' '}
                 <Link 
                   href="/auth/login" 
-                  className="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200"
+                  className="font-medium text-purple-600 hover:text-purple-500 transition-colors duration-200"
                 >
                   Đăng nhập ngay
                 </Link>
@@ -412,14 +412,14 @@ export default function RegisterPage() {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-8">
+        <div className="text-center mt-6">
           <p className="text-xs text-gray-500">
             Bằng việc đăng ký, bạn đồng ý với{' '}
-            <Link href="/terms" className="text-blue-600 hover:text-blue-500">
+            <Link href="/terms" className="text-purple-600 hover:text-purple-500">
               Điều khoản sử dụng
             </Link>{' '}
             và{' '}
-            <Link href="/privacy" className="text-blue-600 hover:text-blue-500">
+            <Link href="/privacy" className="text-purple-600 hover:text-purple-500">
               Chính sách bảo mật
             </Link>
           </p>

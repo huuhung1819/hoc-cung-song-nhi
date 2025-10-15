@@ -286,7 +286,7 @@ ${question.explanation ? `Giải thích: ${question.explanation}` : ''}
             🔒 Bài Kiểm Tra
           </h2>
           <p className="text-gray-600 mb-6">
-            Tính năng này chỉ dành cho phụ huynh. Vui lòng nhập mã mở khóa để sử dụng.
+            Tính năng này chỉ dành cho phụ huynh. Vui lòng nhập mã mở khóa lời giải để sử dụng.
           </p>
           <Button 
             onClick={() => setShowUnlockDialog(true)}

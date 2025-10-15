@@ -6,7 +6,6 @@ import { Bell, Search, User, Settings, X, TrendingUp, HelpCircle, LogOut, Menu }
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { TokenProgress } from './TokenProgress'
-import { SettingsModal } from './SettingsModal'
 import { UnlockCodeButton } from './UnlockCodeButton'
 import { UpgradeButton } from './UpgradeButton'
 import { MobileDrawer } from './MobileDrawer'
@@ -34,7 +33,6 @@ export function NavbarPreview() {
   const [showSearchResults, setShowSearchResults] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
   
   // Use real notifications hook instead of mock data
   const { 
@@ -387,107 +385,18 @@ export function NavbarPreview() {
             )}
           </div>
 
-          {/* Settings */}
+          {/* Settings - Temporarily hidden */}
           <Button 
             variant="ghost" 
             size="icon"
-            onClick={() => setShowSettings(true)}
+            className="hidden"
           >
             <Settings className="w-5 h-5" />
           </Button>
 
-          {/* User Profile */}
-          <div className="relative hidden md:block" ref={profileRef}>
-            <div className="flex items-center space-x-3">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                <p className="text-xs text-gray-500">Học sinh</p>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="rounded-full"
-                onClick={() => setShowProfile(!showProfile)}
-              >
-                <User className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {/* Profile Dropdown */}
-            {showProfile && (
-              <div className="absolute top-full right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                <div className="p-4 border-b border-gray-200">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{user.name}</p>
-                      <p className="text-sm text-gray-500">Học sinh</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="py-2">
-                  <button
-                    onClick={() => {
-                      router.push('/dashboard/account')
-                      setShowProfile(false)
-                    }}
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50"
-                  >
-                    <User className="w-4 h-4 inline mr-3" />
-                    Tài khoản của tôi
-                  </button>
-                  
-                  <button
-                    onClick={() => {
-                      router.push('/dashboard/progress')
-                      setShowProfile(false)
-                    }}
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50"
-                  >
-                    <TrendingUp className="w-4 h-4 inline mr-3" />
-                    Tiến độ học tập
-                  </button>
-                  
-                  <button
-                    onClick={() => {
-                      router.push('/dashboard/support')
-                      setShowProfile(false)
-                    }}
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50"
-                  >
-                    <HelpCircle className="w-4 h-4 inline mr-3" />
-                    Hỗ trợ
-                  </button>
-                </div>
-                
-                <div className="p-3 border-t border-gray-200">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      signOut()
-                      setShowProfile(false)
-                    }}
-                    className="w-full text-red-600 hover:text-red-800 hover:bg-red-50"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Đăng xuất
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
-      {/* Settings Modal */}
-      <SettingsModal 
-        isOpen={showSettings} 
-        onClose={() => setShowSettings(false)} 
-      />
 
       {/* Mobile Drawer */}
       <MobileDrawer 

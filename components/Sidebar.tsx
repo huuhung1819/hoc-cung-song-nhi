@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -23,7 +23,8 @@ import {
   ClipboardList,
   PenTool,
   ClipboardCheck,
-  CheckCircle
+  CheckCircle,
+  Key
 } from 'lucide-react'
 
 // Menu items for different user roles
@@ -103,11 +104,6 @@ const getSidebarItems = (userRole: string) => {
       icon: BookOpen
     },
     {
-      title: 'Sinh bài tập',
-      href: `${basePath}/exercise-generator`,
-      icon: FileText
-    },
-    {
       title: 'Bài kiểm tra',
       href: `${basePath}/tests`,
       icon: ClipboardCheck
@@ -134,6 +130,7 @@ export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
   const [user, setUser] = useState({
     name: 'Đang tải...',
     plan: 'Gói Cơ Bản',
@@ -142,7 +139,8 @@ export function Sidebar() {
   const [isLoadingUser, setIsLoadingUser] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
-  const { user: authUser } = useAuth()
+  const { user: authUser, signOut } = useAuth()
+  const profileRef = useRef<HTMLDivElement>(null)
 
   // Load user info
   const loadUserInfo = useCallback(async () => {
@@ -193,6 +191,18 @@ export function Sidebar() {
     }
   }, [loadUserInfo])
 
+  // Handle click outside to close profile dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setShowProfile(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const handleLogout = async () => {
     if (isLoggingOut) return
     
@@ -240,14 +250,89 @@ export function Sidebar() {
         <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
-            <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-2">
-              <img 
-                src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=32&h=32&fit=crop&crop=face&auto=format" 
-                alt="2 bé hoạt hình" 
-                className="w-8 h-8 rounded-full object-cover"
-              />
-              HỌC CÙNG SONG NHI
-            </h2>
+            <div className="relative" ref={profileRef}>
+              <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setShowProfile(!showProfile)}>
+                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                  <p className="text-xs text-gray-500">Học sinh</p>
+                </div>
+              </div>
+
+              {/* Profile Dropdown */}
+              {showProfile && (
+                <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                  <div className="p-4 border-b border-gray-200">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">{user.name}</p>
+                        <p className="text-sm text-gray-500">Học sinh</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="py-2">
+                    <button
+                      onClick={() => {
+                        router.push('/dashboard/account')
+                        setShowProfile(false)
+                      }}
+                      className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50"
+                    >
+                      <User className="w-4 h-4 inline mr-3" />
+                      Tài khoản của tôi
+                    </button>
+                    
+                    <div className="relative group">
+                      <button
+                        disabled
+                        className="w-full px-4 py-2 text-left text-gray-500 cursor-not-allowed opacity-60"
+                      >
+                        <TrendingUp className="w-4 h-4 inline mr-3" />
+                        Tiến độ học tập
+                      </button>
+                      
+                      {/* Tooltip */}
+                      <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                        Đang chờ cập nhật từ hệ thống
+                        <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-900"></div>
+                      </div>
+                    </div>
+                    
+                    <button
+                      onClick={() => {
+                        router.push('/dashboard/support')
+                        setShowProfile(false)
+                      }}
+                      className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50"
+                    >
+                      <HelpCircle className="w-4 h-4 inline mr-3" />
+                      Hỗ trợ
+                    </button>
+                  </div>
+                  
+                  <div className="p-3 border-t border-gray-200">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        signOut()
+                        setShowProfile(false)
+                      }}
+                      className="w-full text-red-600 hover:text-red-800 hover:bg-red-50"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Đăng xuất
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
           <div className="flex items-center gap-2 ml-auto">
             {/* Close button for mobile */}
@@ -279,22 +364,48 @@ export function Sidebar() {
           {getSidebarItems(user.role).map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
+            const isProgressItem = item.title === 'Tiến độ'
 
             return (
                 <li key={item.href}>
-                  <Link href={item.href} onClick={() => setIsMobileOpen(false)}>
-                    <Button
-                      variant={isActive ? "default" : "ghost"}
-                      className={cn(
-                        "w-full justify-start",
-                        isCollapsed ? "px-2" : "px-3",
-                        isActive ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-md" : "text-gray-700 hover:bg-gray-100"
-                      )}
-                    >
-                      <Icon className={cn("w-4 h-4", !isCollapsed && "mr-3")} />
-                      {!isCollapsed && item.title}
-                    </Button>
-                  </Link>
+                  {isProgressItem ? (
+                    // Tiến độ tab - không click được, có tooltip
+                    <div className="relative group">
+                      <Button
+                        variant="ghost"
+                        disabled
+                        className={cn(
+                          "w-full justify-start cursor-not-allowed opacity-60",
+                          isCollapsed ? "px-2" : "px-3",
+                          "text-gray-500"
+                        )}
+                      >
+                        <Icon className={cn("w-4 h-4", !isCollapsed && "mr-3")} />
+                        {!isCollapsed && item.title}
+                      </Button>
+                      
+                      {/* Tooltip */}
+                      <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                        Đang chờ cập nhật từ hệ thống
+                        <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-900"></div>
+                      </div>
+                    </div>
+                  ) : (
+                    // Các tab khác - bình thường
+                    <Link href={item.href} onClick={() => setIsMobileOpen(false)}>
+                      <Button
+                        variant={isActive ? "default" : "ghost"}
+                        className={cn(
+                          "w-full justify-start",
+                          isCollapsed ? "px-2" : "px-3",
+                          isActive ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-md" : "text-gray-700 hover:bg-gray-100"
+                        )}
+                      >
+                        <Icon className={cn("w-4 h-4", !isCollapsed && "mr-3")} />
+                        {!isCollapsed && item.title}
+                      </Button>
+                    </Link>
+                  )}
                 </li>
             )
           })}

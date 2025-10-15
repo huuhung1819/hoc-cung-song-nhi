@@ -6,7 +6,6 @@ import { Bell, Search, User, Settings, X, TrendingUp, HelpCircle, LogOut } from 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { TokenProgress } from './TokenProgress'
-import { SettingsModal } from './SettingsModal'
 import { useAuth } from '@/lib/authContext'
 import { useNotifications } from '@/lib/hooks/useNotifications'
 
@@ -28,7 +27,6 @@ export function Navbar() {
   const [showSearchResults, setShowSearchResults] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
   // Use SSE notifications hook
   const { 
     notifications, 
@@ -385,11 +383,11 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Settings */}
+          {/* Settings - Temporarily hidden */}
           <Button 
             variant="ghost" 
             size="icon"
-            onClick={() => setShowSettings(true)}
+            className="hidden"
           >
             <Settings className="w-5 h-5" />
           </Button>
@@ -481,11 +479,6 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Settings Modal */}
-      <SettingsModal 
-        isOpen={showSettings} 
-        onClose={() => setShowSettings(false)} 
-      />
     </header>
   )
 }

@@ -108,6 +108,13 @@ export default function AssignmentsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Notice Banner */}
+      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-4 shadow-sm">
+        <p className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent text-center">
+          📚 Con phải thuộc danh sách học sinh của giáo viên mới nhận được bài tập từ cô giáo giao cho
+        </p>
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

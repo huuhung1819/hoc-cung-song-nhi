@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { TrendingUp, Calendar, Award, BookOpen } from 'lucide-react'
+import { TrendingUp, Calendar, Award, BookOpen, Loader2 } from 'lucide-react'
 
 export default function ProgressPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('week')
+  const [showUpdateMessage, setShowUpdateMessage] = useState(false)
 
   const progressData = {
     overall: {
@@ -76,8 +77,30 @@ export default function ProgressPage() {
     ]
   }
 
+  const handleClick = () => {
+    setShowUpdateMessage(true)
+    setTimeout(() => setShowUpdateMessage(false), 3000) // Ẩn sau 3 giây
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Overlay khi click */}
+      {showUpdateMessage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-8 shadow-2xl text-center max-w-md mx-4">
+            <div className="mx-auto w-16 h-16 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center mb-4">
+              <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              📊 Tiến độ học tập
+            </h3>
+            <p className="text-lg text-gray-600">
+              Đang chờ cập nhật từ hệ thống
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -89,7 +112,7 @@ export default function ProgressPage() {
         
         <div className="flex gap-2">
           <button
-            onClick={() => setSelectedPeriod('week')}
+            onClick={handleClick}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               selectedPeriod === 'week'
                 ? 'bg-blue-600 text-white'
@@ -99,7 +122,7 @@ export default function ProgressPage() {
             Tuần này
           </button>
           <button
-            onClick={() => setSelectedPeriod('month')}
+            onClick={handleClick}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               selectedPeriod === 'month'
                 ? 'bg-blue-600 text-white'
@@ -112,8 +135,8 @@ export default function ProgressPage() {
       </div>
 
       {/* Overall Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" onClick={handleClick}>
+        <Card className="cursor-pointer">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Tỷ lệ hoàn thành</CardTitle>
             <TrendingUp className="h-4 w-4 text-blue-600" />
@@ -124,7 +147,7 @@ export default function ProgressPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Điểm trung bình</CardTitle>
             <Award className="h-4 w-4 text-yellow-600" />
@@ -135,7 +158,7 @@ export default function ProgressPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Bài học hoàn thành</CardTitle>
             <BookOpen className="h-4 w-4 text-green-600" />
@@ -148,7 +171,7 @@ export default function ProgressPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Thời gian học</CardTitle>
             <Calendar className="h-4 w-4 text-purple-600" />
@@ -160,9 +183,9 @@ export default function ProgressPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" onClick={handleClick}>
         {/* Subject Progress */}
-        <Card>
+        <Card className="cursor-pointer">
           <CardHeader>
             <CardTitle>Tiến độ theo môn học</CardTitle>
             <CardDescription>
@@ -189,7 +212,7 @@ export default function ProgressPage() {
         </Card>
 
         {/* Weekly Activity */}
-        <Card>
+        <Card className="cursor-pointer">
           <CardHeader>
             <CardTitle>Hoạt động tuần này</CardTitle>
             <CardDescription>
@@ -216,7 +239,7 @@ export default function ProgressPage() {
       </div>
 
       {/* Achievements */}
-      <Card>
+      <Card className="cursor-pointer" onClick={handleClick}>
         <CardHeader>
           <CardTitle>Thành tích và huy hiệu</CardTitle>
           <CardDescription>

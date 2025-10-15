@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { User, Mail, Phone, CreditCard, Bell, Shield, Loader2, AlertCircle } from 'lucide-react'
+import { User, Mail, Phone, CreditCard, Bell, Shield, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/lib/authContext'
 import { toast } from 'sonner'
 
@@ -300,7 +300,11 @@ export default function AccountPage() {
               <div className="flex gap-2">
                 {isEditing ? (
                   <>
-                    <Button onClick={handleSave} disabled={isSaving}>
+                    <Button 
+                      onClick={handleSave} 
+                      disabled={isSaving}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
+                    >
                       {isSaving ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -315,7 +319,10 @@ export default function AccountPage() {
                     </Button>
                   </>
                 ) : (
-                  <Button onClick={() => setIsEditing(true)}>
+                  <Button 
+                    onClick={() => setIsEditing(true)}
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-md hover:shadow-lg transition-all duration-200"
+                  >
                     Chỉnh sửa thông tin
                   </Button>
                 )}
@@ -484,6 +491,9 @@ function ChangePasswordButton({ onPasswordChange, disabled }: {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -508,6 +518,9 @@ function ChangePasswordButton({ onPasswordChange, disabled }: {
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
+      setShowCurrentPassword(false)
+      setShowNewPassword(false)
+      setShowConfirmPassword(false)
     }
     
     setIsSubmitting(false)
@@ -517,7 +530,7 @@ function ChangePasswordButton({ onPasswordChange, disabled }: {
     <>
       <Button 
         variant="outline" 
-        className="w-full justify-start"
+        className="w-full justify-start border-2 border-purple-300 text-purple-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:border-purple-500 transition-all duration-200"
         onClick={() => setShowModal(true)}
         disabled={disabled}
       >
@@ -528,44 +541,82 @@ function ChangePasswordButton({ onPasswordChange, disabled }: {
       {/* Change Password Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h3 className="text-lg font-semibold mb-4">Đổi mật khẩu</h3>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl border-0">
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 -m-6 mb-6 p-6 rounded-t-2xl">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                Đổi mật khẩu
+              </h3>
+            </div>
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="currentPassword">Mật khẩu hiện tại</Label>
-                <Input
-                  id="currentPassword"
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  required
-                  disabled={isSubmitting}
-                />
+                <div className="relative">
+                  <Input
+                    id="currentPassword"
+                    type={showCurrentPassword ? "text" : "password"}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    disabled={isSubmitting}
+                  >
+                    {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
               
               <div>
                 <Label htmlFor="newPassword">Mật khẩu mới</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                  disabled={isSubmitting}
-                />
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type={showNewPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    disabled={isSubmitting}
+                  >
+                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
               
               <div>
                 <Label htmlFor="confirmPassword">Xác nhận mật khẩu mới</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  disabled={isSubmitting}
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    disabled={isSubmitting}
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
               
               {error && (
@@ -573,7 +624,11 @@ function ChangePasswordButton({ onPasswordChange, disabled }: {
               )}
               
               <div className="flex gap-2 pt-4">
-                <Button type="submit" disabled={isSubmitting}>
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
+                >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -588,6 +643,7 @@ function ChangePasswordButton({ onPasswordChange, disabled }: {
                   variant="outline" 
                   onClick={() => setShowModal(false)}
                   disabled={isSubmitting}
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
                   Hủy
                 </Button>
