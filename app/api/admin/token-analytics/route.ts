@@ -319,7 +319,7 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     console.error('Token analytics API error:', error)
     return NextResponse.json(
-      { error: 'Không thể lấy dữ liệu analytics', details: error?.message || 'Unknown error' },
+      { error: 'Không thể lấy dữ liệu analytics', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }

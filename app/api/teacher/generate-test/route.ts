@@ -236,7 +236,7 @@ function parseTest(content: string, testType: string, count: number): any {
     let totalPoints = 10
 
   // Extract questions
-  const questionMatches = testSection.match(/\*\*Câu \d+:\*\*\s*(.+?)(?=\n\*\*Câu \d+:|$)/gs)
+  const questionMatches = testSection.match(/\*\*Câu \d+:\*\*\s*(.+?)(?=\n\*\*Câu \d+:|$)/)
   
   if (questionMatches) {
     questionMatches.forEach((match, index) => {

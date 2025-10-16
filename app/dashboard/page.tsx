@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { LessonCard } from '@/components/LessonCard'
 import { ChatInterface } from '@/components/ChatInterface'
-import { ExerciseGenerator } from '@/components/ExerciseGenerator'
 import { PlanDisplay } from '@/components/PlanDisplay'
 import { useAuth } from '@/lib/authContext'
 
@@ -25,10 +24,7 @@ export default function DashboardPage() {
 
   const [isUnlockMode, setIsUnlockMode] = useState(false)
   
-  // Ref to store sendExerciseToChat function from ChatInterface
-  const sendExerciseToChatRef = useRef<((exercise: string, mode: 'coach' | 'solve') => void) | null>(null)
   const chatRef = useRef<HTMLDivElement>(null)
-  const chatMessagesRef = useRef<HTMLDivElement>(null)
 
   // Load unlock state from localStorage and listen for changes
   useEffect(() => {
@@ -158,47 +154,10 @@ export default function DashboardPage() {
             onNewMessage={() => {
               refreshUserInfo()
             }}
-            onRegisterSendExercise={(sendFn) => {
-              sendExerciseToChatRef.current = sendFn
-            }}
-            onRegisterMessagesRef={(ref) => {
-              if (ref) {
-                (chatMessagesRef as any).current = ref
-              }
-            }}
           />
         </CardContent>
       </Card>
 
-             {/* 🆕 Exercise Generator - FULL WIDTH */}
-             <ExerciseGenerator 
-               key={`exercise-gen-${authUser?.id}`}
-               isUnlockMode={isUnlockMode}
-               userId={authUser?.id}
-               onSendToChat={(exercise, mode) => {
-          console.log('🎯 Dashboard onSendToChat called:', { exercise: exercise.substring(0, 50) + '...', mode })
-          console.log('🎯 sendExerciseToChatRef.current:', !!sendExerciseToChatRef.current)
-          
-          // Send exercise to chat immediately
-          if (sendExerciseToChatRef.current) {
-            console.log('🎯 Calling sendExerciseToChatRef.current')
-            sendExerciseToChatRef.current(exercise, mode)
-          } else {
-            console.error('❌ sendExerciseToChatRef.current is null!')
-          }
-          
-          // Scroll to chat messages area smoothly
-          setTimeout(() => {
-            if (chatMessagesRef.current) {
-              chatMessagesRef.current.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start',
-                inline: 'nearest'
-              })
-            }
-          }, 100) // Small delay for scroll only
-        }}
-      />
 
     </div>
   )

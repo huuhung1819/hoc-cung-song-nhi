@@ -208,8 +208,12 @@ export async function POST(request: NextRequest) {
     // Get current token info for response
     const currentTokenInfo = await tokenManager.getTokenInfo(actualUserId)
 
+    // Ensure we have a valid response
+    const aiReply = response.output_text || response.content || 'AI chưa thể trả lời được câu hỏi này.'
+    console.log('Final AI Reply:', aiReply)
+    
     return NextResponse.json({
-      reply: response.output_text || response.content,
+      reply: aiReply,
       conversationId: currentConversationId,
       responseId: response.id,
       workflowId: workflowId,

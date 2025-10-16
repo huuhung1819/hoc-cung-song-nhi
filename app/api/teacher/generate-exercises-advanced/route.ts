@@ -175,10 +175,10 @@ function parseExercises(text: string, exerciseType: string, count: number): any[
     const section = sections[i].trim()
     
     if (exerciseType === 'multiple_choice') {
-      const questionMatch = section.match(/\*\*Câu \d+:\*\*\s*(.+?)(?=\n\n[A-D]\.)/s)
+      const questionMatch = section.match(/\*\*Câu \d+:\*\*\s*(.+?)(?=\n\n[A-D]\.)/)
       const optionsMatch = section.match(/[A-D]\.\s*(.+?)(?=\n|$)/g)
       const answerMatch = section.match(/\*\*Đáp án:\*\*\s*([A-D])/i)
-      const explanationMatch = section.match(/\*\*Giải thích:\*\*\s*(.+?)(?=---|$)/s)
+      const explanationMatch = section.match(/\*\*Giải thích:\*\*\s*(.+?)(?=---|$)/)
 
       if (questionMatch && optionsMatch && answerMatch) {
         exercises.push({
@@ -191,9 +191,9 @@ function parseExercises(text: string, exerciseType: string, count: number): any[
         })
       }
     } else if (exerciseType === 'fill_blank') {
-      const questionMatch = section.match(/\*\*Câu \d+:\*\*\s*(.+?)(?=\n\*\*Đáp án)/s)
+      const questionMatch = section.match(/\*\*Câu \d+:\*\*\s*(.+?)(?=\n\*\*Đáp án)/)
       const answerMatch = section.match(/\*\*Đáp án:\*\*\s*(.+?)(?=\n|$)/i)
-      const explanationMatch = section.match(/\*\*Giải thích:\*\*\s*(.+?)(?=---|$)/s)
+      const explanationMatch = section.match(/\*\*Giải thích:\*\*\s*(.+?)(?=---|$)/)
 
       if (questionMatch && answerMatch) {
         exercises.push({
@@ -205,9 +205,9 @@ function parseExercises(text: string, exerciseType: string, count: number): any[
         })
       }
     } else if (exerciseType === 'essay') {
-      const questionMatch = section.match(/\*\*Câu \d+:\*\*\s*(.+?)(?=\n\*\*Gợi ý)/s)
-      const hintMatch = section.match(/\*\*Gợi ý trả lời:\*\*\s*(.+?)(?=\n\*\*Đáp án mẫu)/s)
-      const sampleMatch = section.match(/\*\*Đáp án mẫu:\*\*\s*(.+?)(?=---|$)/s)
+      const questionMatch = section.match(/\*\*Câu \d+:\*\*\s*(.+?)(?=\n\*\*Gợi ý)/)
+      const hintMatch = section.match(/\*\*Gợi ý trả lời:\*\*\s*(.+?)(?=\n\*\*Đáp án mẫu)/)
+      const sampleMatch = section.match(/\*\*Đáp án mẫu:\*\*\s*(.+?)(?=---|$)/)
 
       if (questionMatch) {
         exercises.push({
