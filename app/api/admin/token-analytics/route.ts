@@ -101,7 +101,7 @@ async function getTokenAnalytics() {
     
     if (tokensData) {
       // Get user roles for token logs
-      const userIds = [...new Set(tokensData.map(log => log.user_id))]
+      const userIds = Array.from(new Set(tokensData.map(log => log.user_id)))
       const { data: userRoles, error: usersError } = await supabase
         .from('users')
         .select('id, role')
@@ -319,7 +319,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error('Token analytics API error:', error)
     return NextResponse.json(
-      { error: 'Không thể lấy dữ liệu analytics', details: error.message },
+      { error: 'Không thể lấy dữ liệu analytics', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }

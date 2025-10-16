@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -84,49 +84,8 @@ export function ChatInterface({
     }
   }, [])
 
-  // Register sendExerciseToChat function for external use
-  useEffect(() => {
-    if (onRegisterSendExercise) {
-      onRegisterSendExercise(sendExerciseToChat)
-    }
-  }, [onRegisterSendExercise])
-
-  // Register messages ref for external scroll control
-  useEffect(() => {
-    if (onRegisterMessagesRef) {
-      onRegisterMessagesRef(messagesAreaRef)
-    }
-  }, [onRegisterMessagesRef])
-
-  // Handle subject selection
-  const handleSubjectSelect = (subject: string, subSubject: string) => {
-    setSelectedSubject(subject)
-    setSelectedSubSubject(subSubject)
-    setAiState('active')
-  }
-
-  const scrollToBottom = () => {
-    // Use messagesAreaRef instead of messagesEndRef for better scroll control
-    setTimeout(() => {
-      if (messagesAreaRef.current) {
-        messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight
-      }
-    }, 100) // Small delay to ensure DOM is updated
-  }
-
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
-
-  // Additional scroll when AI responds
-  useEffect(() => {
-    if (messages.length > 0 && messages[messages.length - 1]?.role === 'assistant') {
-      scrollToBottom()
-    }
-  }, [messages])
-
   // Function to send exercise to chat (called from ExerciseGenerator)
-  const sendExerciseToChat = async (exercise: string, mode: 'coach' | 'solve') => {
+  const sendExerciseToChat = useCallback(async (exercise: string, mode: 'coach' | 'solve') => {
     console.log('🤖 ChatInterface sendExerciseToChat called:', { exercise: exercise.substring(0, 50) + '...', mode, userId })
     
     // Set mode first
@@ -169,10 +128,6 @@ export function ChatInterface({
         throw new Error(data.error || 'Có lỗi xảy ra')
       }
 
-      // Debug log
-      console.log('API Response:', data)
-      console.log('Reply content:', data.reply)
-
       // Update conversationId if new
       if (data.conversationId && !conversationId) {
         setConversationId(data.conversationId)
@@ -197,7 +152,42 @@ export function ChatInterface({
     } finally {
       setIsLoading(false)
     }
+  }, [userId, conversationId, lessonContent, onModeChange, onNewMessage])
+
+  // Register sendExerciseToChat function for external use
+  useEffect(() => {
+    if (onRegisterSendExercise) {
+      onRegisterSendExercise(sendExerciseToChat)
+    }
+  }, [onRegisterSendExercise, sendExerciseToChat])
+
+  // Register messages ref for external scroll control
+  useEffect(() => {
+    if (onRegisterMessagesRef) {
+      onRegisterMessagesRef(messagesAreaRef)
+    }
+  }, [onRegisterMessagesRef])
+
+  // Handle subject selection
+  const handleSubjectSelect = (subject: string, subSubject: string) => {
+    setSelectedSubject(subject)
+    setSelectedSubSubject(subSubject)
+    setAiState('active')
   }
+
+  const scrollToBottom = () => {
+    // Use messagesAreaRef instead of messagesEndRef for better scroll control
+    setTimeout(() => {
+      if (messagesAreaRef.current) {
+        messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight
+      }
+    }, 100) // Small delay to ensure DOM is updated
+  }
+
+  // Single useEffect for scrolling when messages change
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
 
   const handleModeChange = (mode: 'coach' | 'solve') => {
     setCurrentMode(mode)

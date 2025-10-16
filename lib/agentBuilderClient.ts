@@ -8,6 +8,12 @@ export const agentBuilderClient = {
   async createRun(workflowId: string, messages: { role: 'user' | 'assistant' | 'system', content: any }[]) {
     try {
       // Check if we have OpenAI API key
+      console.log('DEBUG: Checking OPENAI_API_KEY:', {
+        exists: !!process.env.OPENAI_API_KEY,
+        length: process.env.OPENAI_API_KEY?.length || 0,
+        startsWith: process.env.OPENAI_API_KEY?.substring(0, 10) || 'N/A'
+      })
+      
       if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your_openai_api_key_here' || process.env.OPENAI_API_KEY.length < 10) {
         // Return mock response for testing
         console.log('Using mock AI response (no API key configured)')
@@ -23,6 +29,11 @@ export const agentBuilderClient = {
         const hasSimpleNumbers = /\b[1-5]\s*[\+\-\*\/]\s*[1-5]\b/.test(userMessage)
         
         let response = ''
+        
+        // Extract the actual question from the message
+        const questionMatch = userMessage.match(/Câu hỏi: "([^"]+)"/)
+        const actualQuestion = questionMatch ? questionMatch[1] : userMessage
+        
         if (userMessage.includes('[Ảnh bài tập]')) {
           response = isCoachMode 
             ? `Tôi thấy bạn đã gửi ảnh bài tập! Hãy để tôi hướng dẫn con cách làm:
@@ -46,40 +57,57 @@ Bước 3: Kết quả: 2 + 3 = 5
 
 **Giải thích**: Khi cộng 2 với 3, ta bắt đầu từ số 2 và đếm thêm 3 số nữa để được kết quả là 5.`
         } else {
-          if (isSimpleMath && hasSimpleNumbers) {
-            // Simple math problems - short response
+          // Check if it's a math exercise question
+          const isMathQuestion = actualQuestion.includes('=') || actualQuestion.includes('+') || actualQuestion.includes('-') || actualQuestion.includes('×') || actualQuestion.includes('÷')
+          
+          if (isMathQuestion) {
             response = isCoachMode
-              ? `Đây là bài toán đơn giản! Con hãy thử làm trước:
+              ? `Tôi thấy đây là bài toán! Hãy để tôi hướng dẫn con cách làm:
 
-**Gợi ý**: Con có thể dùng ngón tay hoặc đếm để tính
-**Thử làm**: Con hãy thử tính xem kết quả là bao nhiêu?
+**Đề bài**: ${actualQuestion}
+
+**Cách tư duy**:
+1. **Đọc kỹ đề bài**: Con hãy đọc lại đề bài một cách cẩn thận
+2. **Xác định phép tính**: Đây là phép cộng, trừ, nhân hay chia?
+3. **Tìm số cần tìm**: Bài hỏi con tìm số nào?
+4. **Thử tính**: Con hãy thử tính từng bước một
+
+**Gợi ý**: Con có thể dùng ngón tay để đếm hoặc viết ra giấy nháp.
 
 Con thử làm trước nhé, sau đó cho tôi biết kết quả!`
-              : `Đây là bài toán đơn giản:
+              : `Đây là lời giải chi tiết cho bài toán:
 
-**Đáp án**: ${userMessage.includes('1+1') ? '2' : userMessage.includes('2+2') ? '4' : 'Kết quả'}
+**Đề bài**: ${actualQuestion}
 
-**Giải thích ngắn gọn**: Đây là phép tính cơ bản, con có thể dùng ngón tay để đếm.`
+**Lời giải từng bước**:
+1. Phân tích đề bài và xác định phép tính
+2. Thực hiện tính toán cẩn thận
+3. Kiểm tra lại kết quả
+
+**Đáp án**: [Kết quả sẽ được tính toán]
+
+**Giải thích**: Hãy làm từng bước một cách cẩn thận để đảm bảo kết quả chính xác.`
           } else {
-            // Complex problems - detailed response
             response = isCoachMode
               ? `Tôi hiểu câu hỏi của bạn! Hãy để tôi hướng dẫn con cách tư duy:
 
-**Hiểu đề bài**: Con có thể đọc lại đề bài không?
-**Xác định dạng**: Đây là loại bài gì?
-**Tìm hiểu yêu cầu**: Bài hỏi gì? Cần tìm gì?
-**Gợi ý cách làm**: Con nghĩ nên làm như thế nào?
+**Đề bài**: ${actualQuestion}
+
+**Cách tiếp cận**:
+1. **Hiểu đề bài**: Con có thể đọc lại đề bài không?
+2. **Xác định dạng**: Đây là loại bài gì?
+3. **Tìm hiểu yêu cầu**: Bài hỏi gì? Cần tìm gì?
+4. **Gợi ý cách làm**: Con nghĩ nên làm như thế nào?
 
 Hãy cho tôi biết con đã hiểu đề bài chưa? Con có thể mô tả lại đề bài không?`
               : `Tôi hiểu câu hỏi của bạn! Đây là lời giải chi tiết:
 
-**Đề bài**: [Nội dung câu hỏi]
+**Đề bài**: ${actualQuestion}
 
 **Lời giải từng bước**:
-Bước 1: [Phân tích đề bài]
-Bước 2: [Áp dụng công thức/phương pháp]
-Bước 3: [Tính toán]
-Bước 4: [Kiểm tra kết quả]
+Bước 1: Phân tích đề bài
+Bước 2: Áp dụng phương pháp phù hợp
+Bước 3: Tính toán và kiểm tra kết quả
 
 **Đáp án**: [Kết quả cuối cùng]
 
@@ -127,12 +155,16 @@ Bước 4: [Kiểm tra kết quả]
       }
 
       const data = await response.json()
+      console.log('OpenAI API Response:', JSON.stringify(data, null, 2))
       
       // Transform response to match expected format
+      const aiResponse = data.choices[0]?.message?.content || 'Không có phản hồi'
+      console.log('Extracted AI Response:', aiResponse)
+      
       return {
         id: data.id,
-        output_text: data.choices[0]?.message?.content || 'Không có phản hồi',
-        content: data.choices[0]?.message?.content || 'Không có phản hồi',
+        output_text: aiResponse,
+        content: aiResponse,
         usage: data.usage,
         tools_used: []
       }

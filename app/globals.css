@@ -94,4 +94,21 @@
   .animate-accordion-up {
     animation: accordion-up 0.2s ease-out;
   }
+
+  /* Textbook-style exercise layout */
+  .exercise-item {
+    @apply relative;
+  }
+
+  .exercise-item::before {
+    content: '';
+    @apply absolute left-0 top-0 bottom-0 w-0.5 bg-blue-100;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 }

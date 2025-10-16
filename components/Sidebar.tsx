@@ -104,6 +104,11 @@ const getSidebarItems = (userRole: string) => {
       icon: BookOpen
     },
     {
+      title: 'Bài luyện tập',
+      href: `${basePath}/exercises`,
+      icon: BookOpen
+    },
+    {
       title: 'Bài kiểm tra',
       href: `${basePath}/tests`,
       icon: ClipboardCheck
