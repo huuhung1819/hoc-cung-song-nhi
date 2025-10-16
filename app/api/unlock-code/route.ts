@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClientForAPI } from '@/lib/supabaseServer'
 import crypto from 'crypto'
+import { logger } from '@/lib/logger'
 
 // Simple encryption for unlock code (can be improved with more secure methods)
 const encryptCode = (code: string): string => {
-  const secretKey = process.env.UNLOCK_CODE_SECRET || 'default-secret-key-change-in-production'
+  const secretKey = process.env.UNLOCK_CODE_SECRET
+  if (!secretKey || secretKey.length < 16) {
+    // Do not log the key value; only status
+    logger.error('UNLOCK_CODE_SECRET is missing or too short. Set a strong secret in environment variables.')
+    throw new Error('Server misconfiguration: unlock secret not set')
+  }
   return crypto.createHmac('sha256', secretKey).update(code).digest('hex')
 }
 

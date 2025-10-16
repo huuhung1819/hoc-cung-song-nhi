@@ -916,7 +916,7 @@ export function ExercisePracticePage() {
             </Button>
             <Button 
               onClick={handleGenerateExercises}
-              disabled={!selectedTopic || isGeneratingExercises || (dailyLimitData && !dailyLimitData.canCreate)}
+              disabled={!selectedTopic || isGeneratingExercises || (dailyLimitData ? !dailyLimitData.canCreate : false)}
               className={`${
                 dailyLimitData && !dailyLimitData.canCreate 
                   ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed' 

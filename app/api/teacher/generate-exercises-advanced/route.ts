@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireTeacherOrAdmin } from '@/lib/apiAuth'
 
 export async function POST(req: NextRequest) {
+  // Guard: only teacher/admin
+  const authError = await requireTeacherOrAdmin(req)
+  if (authError) return authError
   try {
     const { 
       subject, 

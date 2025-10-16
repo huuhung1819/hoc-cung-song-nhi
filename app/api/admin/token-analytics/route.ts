@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth, requireAdmin } from '@/lib/apiAuth'
+import { logger } from '@/lib/logger'
 import { createServiceClient } from '@/lib/supabaseServer'
 
 // OpenAI pricing (per 1M tokens)
@@ -35,7 +36,7 @@ async function getTokenAnalytics() {
   try {
     const today = new Date().toISOString().split('T')[0]
     
-    console.log('🔍 Fetching tokens for date:', today)
+    logger.log('🔍 Fetching tokens for date:', today)
     
     // Get total tokens used today (including yesterday for testing)
     const { data: todayTokens, error: todayError } = await supabase
@@ -44,12 +45,12 @@ async function getTokenAnalytics() {
       .gte('timestamp', `${today}T00:00:00`)
       .lte('timestamp', `${today}T23:59:59`)
     
-    console.log('📊 Today tokens found:', todayTokens?.length || 0)
+    logger.log('📊 Today tokens found:', todayTokens?.length || 0)
     
     // If no data today, get recent data for testing
     let tokensData = todayTokens
     if (!tokensData || tokensData.length === 0) {
-      console.log('🔍 No data today, fetching recent data...')
+      logger.log('🔍 No data today, fetching recent data...')
       const { data: recentTokens, error: recentError } = await supabase
         .from('token_logs')
         .select('user_id, total_tokens, prompt_tokens, completion_tokens, model, cost, timestamp')
@@ -58,12 +59,12 @@ async function getTokenAnalytics() {
       
       if (!recentError) {
         tokensData = recentTokens
-        console.log('📊 Recent tokens found:', tokensData?.length || 0)
+        logger.log('📊 Recent tokens found:', tokensData?.length || 0)
       }
     }
     
     if (todayError) {
-      console.error('Error fetching today tokens:', todayError)
+      logger.error('Error fetching today tokens:', todayError)
     }
     
     // Calculate total tokens and cost
@@ -112,7 +113,7 @@ async function getTokenAnalytics() {
         
         for (const log of tokensData) {
           const userRole = roleMap.get(log.user_id)
-          console.log(`🔍 User ${log.user_id} has role: ${userRole}`)
+          logger.log(`🔍 User ${log.user_id} has role: ${userRole}`)
           
           if (userRole) {
             // Map role to correct key
@@ -243,7 +244,7 @@ async function getTokenAnalytics() {
         const logDate = new Date(log.timestamp)
         const hour = logDate.getUTCHours() // Use UTC hours to match database timezone
         
-        console.log(`🔍 Log timestamp: ${log.timestamp} -> UTC Hour: ${hour}`)
+        logger.log(`🔍 Log timestamp: ${log.timestamp} -> UTC Hour: ${hour}`)
         
         if (hourlyData.has(hour)) {
           const hourData = hourlyData.get(hour)
@@ -277,7 +278,7 @@ async function getTokenAnalytics() {
     }
     
   } catch (error) {
-    console.error('Error getting token analytics:', error)
+    logger.error('Error getting token analytics:', error)
     throw error
   }
 }
@@ -285,16 +286,7 @@ async function getTokenAnalytics() {
 // Custom auth handler with admin bypass
 export async function GET(req: NextRequest) {
   try {
-    // TEMPORARY: Bypass auth for admin user debugging
-    const userEmail = req.headers.get('x-user-email') || req.headers.get('x-forwarded-user-email')
-    
-    if (userEmail === 'huuhung20182019@gmail.com') {
-      console.log('🔧 Admin bypass for token analytics API')
-      const analytics = await getTokenAnalytics()
-      return NextResponse.json(analytics)
-    }
-    
-    // Normal auth flow for other users
+    // Require admin access
     const supabase = createServiceClient()
     const { data: { user }, error } = await supabase.auth.getUser()
     
@@ -317,7 +309,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(analytics)
     
   } catch (error: any) {
-    console.error('Token analytics API error:', error)
+    logger.error('Token analytics API error:', error)
     return NextResponse.json(
       { error: 'Không thể lấy dữ liệu analytics', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
